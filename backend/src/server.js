@@ -488,6 +488,14 @@ app.delete("/api/:table/:id", async (req, res) => {
   }
 });
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "..", "..", "dist")));
+
+// Fallback for React router
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "..", "dist", "index.html"));
+});
+
 app.listen(port, () => {
   console.log(`Backend running on port ${port}`);
 });
