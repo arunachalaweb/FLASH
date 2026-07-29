@@ -29,7 +29,7 @@ import { ProjectsGallery } from "@/components/site/ProjectsGallery";
 import { Testimonials } from "@/components/site/Testimonials";
 import { ContactForm } from "@/components/site/ContactForm";
 import { services } from "@/lib/services-data";
-import hero1 from "@/assets/hero-1.jpg";
+import flash1 from "@/assets/flash-1.png";
 import hero2 from "@/assets/hero-2.jpg";
 import hero3 from "@/assets/hero-3.jpg";
 import engineers from "@/assets/about-engineers.jpg";
@@ -107,8 +107,7 @@ const process = [
 
 const heroSlides = [
   {
-    img: hero1,
-    video: "/solar_panel_s.mp4",
+    img: flash1,
     tag: "Powering a Bright & Green Future",
     headline: ["Clean Energy,", "Engineered for", "India's Future."],
     accent: "India's Future.",
