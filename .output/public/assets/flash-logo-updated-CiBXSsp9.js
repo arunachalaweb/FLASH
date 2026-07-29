@@ -1,0 +1,1 @@
+var e=`/assets/flash-logo-updated-BVDlTLu6.png`;export{e as t};

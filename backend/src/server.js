@@ -489,11 +489,11 @@ app.delete("/api/:table/:id", async (req, res) => {
 });
 
 // Serve frontend static files
-app.use(express.static(path.join(__dirname, "..", "..", "dist")));
+app.use(express.static(path.join(__dirname, "..", "..", ".output", "public")));
 
 // Fallback for React router
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "..", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "..", ".output", "public", "index.html"));
 });
 
 app.listen(port, () => {
