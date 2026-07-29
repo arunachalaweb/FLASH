@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ContactEnquiry {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  subject     String?
+  message     String
+  status      String   @default("new")
+  admin_notes String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime? @updatedAt
+}
+
+model NewsletterSubscriber {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model QuoteRequest {
+  id            String   @id @default(uuid())
+  name          String
+  email         String
+  phone         String?
+  city          String?
+  budget        String?
+  load_kw       String?
+  message       String?
+  property_type String?
+  service_type  String?
+  status        String   @default("new")
+  admin_notes   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime? @updatedAt
+}
+
+model AdminUser {
+  id          String   @id @default(uuid())
+  username    String   @unique
+  password    String
+  full_name   String?
+  email       String?
+  phone       String?
+  role        String   @default("admin")
+  active      Boolean  @default(true)
+  created_at  DateTime @default(now())
+}
+
+model UserRole {
+  id         String   @id @default(uuid())
+  user_id    String
+  role       String
+  created_at DateTime @default(now())
+}
+
+model Project {
+  id                        String   @id @default(uuid())
+  title                     String
+  slug                      String?
+  sector                    String?
+  location                  String?
+  capacity                  String?
+  completion_date           String?
+  description               String?
+  featured_image            String?
+  gallery_images            String?
+  sort_order                Int      @default(0)
+  published                 Boolean  @default(false)
+  assigned_staff_id         String?
+  status                    String   @default("pending")
+  progress_percent          Int      @default(0)
+  installation_instructions String?
+  created_at                DateTime @default(now())
+  updated_at                DateTime? @updatedAt
+}
+
+model Service {
+  id                String   @id @default(uuid())
+  title             String
+  slug              String   @unique
+  icon_name         String?
+  short_description String?
+  long_description  String?
+  featured_image    String?
+  gallery_images    String?
+  benefits          String?
+  sort_order        Int      @default(0)
+  published         Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime? @updatedAt
+}
+
+model TeamMember {
+  id           String   @id @default(uuid())
+  name         String
+  role         String?
+  email        String?
+  phone        String?
+  linkedin_url String?
+  photo_url    String?
+  bio          String?
+  sort_order   Int      @default(0)
+  published    Boolean  @default(false)
+  username     String?  @unique
+  password     String?
+  education    String?
+  experience   String?
+  domain_core  String?
+  address      String?
+  dob          String?
+  joining_date String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime? @updatedAt
+}
+
+model Testimonial {
+  id           String   @id @default(uuid())
+  author_name  String
+  author_role  String?
+  author_image String?
+  quote        String
+  rating       Int      @default(5)
+  published    Boolean  @default(false)
+  sort_order   Int      @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime? @updatedAt
+}
+
+model Faq {
+  id         String   @id @default(uuid())
+  question   String
+  answer     String
+  category   String?
+  published  Boolean  @default(false)
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model PageContent {
+  id          String   @id @default(uuid())
+  page_slug   String
+  section_key String
+  title       String?
+  subtitle    String?
+  body        String?
+  image_url   String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime? @updatedAt
+
+  @@unique([page_slug, section_key])
+}
+
+model Profile {
+  id         String   @id @default(uuid())
+  full_name  String?
+  email      String?
+  phone      String?
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model SystemSetting {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  value      String
+  created_at DateTime @default(now())
+  updated_at DateTime? @updatedAt
+}
+
+model StaffMessage {
+  id           String   @id @default(uuid())
+  project_id   String?
+  sender_role  String
+  sender_name  String
+  recipient_id String
+  message      String
+  created_at   DateTime @default(now())
+}

@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model ContactEnquiry {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  phone      String? 
+  subject    String?
+  message    String
+  adminNotes String?  @map("admin_notes")
+  status     String   @default("new")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+}
+
+model QuoteRequest {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  city        String?
+  budget      String?
+  loadKw      Float?   @map("load_kw")
+  message     String?
+  propertyType String? @map("property_type")
+  serviceType String?  @map("service_type")
+  status      String   @default("new")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime? @updatedAt @map("updated_at")
+}
+
+model UserRole {
+  id       String   @id @default(uuid())
+  userId   String   @map("user_id")
+  role     String
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+model Project {
+  id         String   @id @default(uuid())
+  title      String
+  description String?
+  published  Boolean  @default(false)
+  sortOrder  Int      @default(0) @map("sort_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
+}
+
+model Service {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  published Boolean  @default(false)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+}

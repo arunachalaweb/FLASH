@@ -1,0 +1,291 @@
+import { Link } from "@tanstack/react-router";
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Menu,
+  X,
+  ArrowRight,
+  LogIn,
+  UserPlus,
+  LayoutDashboard,
+  LogOut,
+  User,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import logo from "@/assets/flash-logo-updated.png";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth, useIsAdmin } from "@/hooks/useAuth";
+
+const nav = [
+  { label: "Home", to: "/" },
+  { label: "About Us", to: "/about" },
+  { label: "Services", to: "/services" },
+  { label: "Projects", to: "/projects" },
+  { label: "Expertise", to: "/expertise" },
+  { label: "Why Us", to: "/why-us" },
+  { label: "Contact", to: "/contact" },
+];
+
+export function Header({ overlay = false }: { overlay?: boolean } = {}) {
+  const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = useIsAdmin(user?.id);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setMenuOpen(false);
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  const navTextColor = overlay ? "text-white" : "text-brand-navy";
+  const utilBarBg = overlay
+    ? "bg-brand-navy/40 backdrop-blur border-b border-white/10"
+    : "bg-brand-navy";
+  const mainBarBg = overlay
+    ? "bg-transparent"
+    : "bg-white/95 backdrop-blur border-b border-border shadow-sm";
+
+  return (
+    <header className={`${overlay ? "absolute inset-x-0 top-0" : "sticky top-0"} z-50`}>
+      {/* Top utility bar */}
+      <div className={`hidden md:block ${utilBarBg} text-white/90 text-xs`}>
+        <div className="mx-auto max-w-7xl px-6 h-9 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <span className="flex items-center gap-2">
+              <Mail className="h-3.5 w-3.5 text-primary" />
+              info@flashrenewable.com
+            </span>
+            <span className="hidden lg:flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              PAN-India Solar EPC · MNRE Registered
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden lg:inline text-white/60">Mon–Sat · 9:00 – 18:30</span>
+            <a
+              href="tel:+919150011428"
+              className="flex items-center gap-2 hover:text-primary transition-colors"
+            >
+              <Phone className="h-3.5 w-3.5" /> +91 91500 11428
+            </a>
+            <span className="h-4 w-px bg-white/20" aria-hidden="true" />
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="inline-flex items-center gap-2 hover:text-primary transition-colors"
+                >
+                  <span className="grid place-items-center h-5 w-5 rounded-full bg-primary text-brand-navy-deep text-[10px] font-bold">
+                    {(user.email ?? "?").slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="max-w-[140px] truncate">{user.email}</span>
+                </button>
+                {menuOpen && (
+                  <div
+                    className="absolute right-0 top-7 z-50 w-56 rounded-xl border border-white/10 bg-brand-navy-deep shadow-2xl overflow-hidden text-white"
+                    onMouseLeave={() => setMenuOpen(false)}
+                  >
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-xs hover:bg-primary/20"
+                      >
+                        <LayoutDashboard className="h-3.5 w-3.5 text-primary" /> Admin Dashboard
+                      </Link>
+                    )}
+                    <Link
+                      to="/"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-xs hover:bg-primary/20"
+                    >
+                      <User className="h-3.5 w-3.5 text-primary" /> My Account
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-xs hover:bg-red-500/20 text-red-300 border-t border-white/10"
+                    >
+                      <LogOut className="h-3.5 w-3.5" /> Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+                >
+                  <LogIn className="h-3.5 w-3.5" /> Login
+                </Link>
+                <span className="text-white/40" aria-hidden="true">
+                  |
+                </span>
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
+                >
+                  <UserPlus className="h-3.5 w-3.5" /> Signup
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main bar */}
+      <div className={mainBarBg}>
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 h-[96px] md:h-[140px]">
+            {/* Logo */}
+            <Link to="/" className="flex min-w-0 items-center" onClick={() => setOpen(false)}>
+              <img
+                src={logo}
+                alt="Flash Renewable Energy Solutions"
+                className="h-[56px] md:h-[90px] w-auto object-contain shrink-0"
+              />
+            </Link>
+
+            {/* Desktop nav + CTA */}
+            <div className="hidden lg:flex items-center gap-8">
+              <nav className={`flex items-center gap-6 text-sm font-medium ${navTextColor}`}>
+                {nav.map((n) => (
+                  <Link
+                    key={n.label}
+                    to={n.to}
+                    className="relative py-2 hover:text-primary transition-colors after:absolute after:left-0 after:-bottom-0.5 after:h-0.5 after:w-0 after:bg-primary after:transition-all hover:after:w-full"
+                  >
+                    {n.label}
+                  </Link>
+                ))}
+              </nav>
+              <Link
+                to="/quote"
+                className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-95 transition"
+              >
+                Free Quote
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Mobile: call + hamburger */}
+            <div className="flex lg:hidden items-center gap-2 shrink-0">
+              <a
+                href="tel:+919150011428"
+                aria-label="Call"
+                className="grid place-items-center h-10 w-10 rounded-full border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition"
+              >
+                <Phone className="h-4 w-4" />
+              </a>
+              <button
+                type="button"
+                aria-label={open ? "Close menu" : "Open menu"}
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+                className="grid place-items-center h-10 w-10 rounded-full bg-brand-navy text-white hover:bg-primary transition"
+              >
+                {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu overlay */}
+      <div
+        className={`lg:hidden fixed inset-x-0 bottom-0 top-[80px] md:top-[calc(100px+36px)] z-40 bg-brand-navy/98 backdrop-blur-xl transition-all duration-300 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="h-full overflow-y-auto px-6 py-6 flex flex-col gap-6">
+          <nav className="flex flex-col divide-y divide-white/10">
+            {nav.map((n, i) => (
+              <Link
+                key={n.label}
+                to={n.to}
+                onClick={() => setOpen(false)}
+                className={`group flex items-center justify-between py-5 min-h-[56px] text-lg font-medium text-white active:bg-white/5 hover:text-primary transition-all ${
+                  open ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
+                }`}
+                style={{ transitionDelay: open ? `${i * 40}ms` : "0ms" }}
+              >
+                <span>{n.label}</span>
+                <ArrowRight className="h-4 w-4 text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              </Link>
+            ))}
+          </nav>
+          <div className="space-y-3">
+            <Link
+              to="/quote"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 w-full rounded-full bg-primary px-6 py-4 min-h-[56px] text-base font-semibold text-primary-foreground shadow-lg shadow-primary/30"
+            >
+              Get a Free Quote <ArrowRight className="h-4 w-4" />
+            </Link>
+            <a
+              href="tel:+919150011428"
+              className="flex items-center justify-center gap-2 w-full rounded-full border border-white/20 px-6 py-4 min-h-[56px] text-base font-semibold text-white hover:bg-white/10 transition"
+            >
+              <Phone className="h-4 w-4 text-primary" /> +91 91500 11428
+            </a>
+            <div className="grid grid-cols-2 gap-3">
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setOpen(false)}
+                      className="col-span-2 flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/40 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-primary" /> Admin Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={signOut}
+                    className="col-span-2 flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-red-500/20 transition"
+                  >
+                    <LogOut className="h-4 w-4 text-primary" /> Sign out ({user.email})
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-white/10 transition"
+                  >
+                    <LogIn className="h-4 w-4 text-primary" /> Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-primary hover:border-primary transition"
+                  >
+                    <UserPlus className="h-4 w-4 text-primary" /> Signup
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="mt-auto pt-6 text-xs text-white/60 space-y-2">
+            <p className="flex items-center gap-2">
+              <Mail className="h-3.5 w-3.5 text-primary" /> info@flashrenewable.com
+            </p>
+            <p className="flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 text-primary" /> PAN-India · MNRE Registered
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
