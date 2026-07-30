@@ -17,10 +17,11 @@ function MessagesCenter() {
   const [sending, setSending] = useState(false);
 
   const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
-  const token = localStorage.getItem("admin_token");
-  const role = localStorage.getItem("admin_role") || "admin";
-  const myId = localStorage.getItem("admin_id") || "";
-  const myName = localStorage.getItem("admin_user") || "Admin";
+  const hasLocalStorage = typeof window !== "undefined";
+  const token = hasLocalStorage ? localStorage.getItem("admin_token") : null;
+  const role = hasLocalStorage ? (localStorage.getItem("admin_role") || "admin") : "admin";
+  const myId = hasLocalStorage ? (localStorage.getItem("admin_id") || "") : "";
+  const myName = hasLocalStorage ? (localStorage.getItem("admin_user") || "Admin") : "Admin";
 
   async function loadData() {
     setLoading(true);

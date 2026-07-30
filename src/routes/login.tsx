@@ -135,28 +135,55 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
-      const res = await fetch(`${BACKEND_URL}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: email, password }),
-      });
+      const backendUrl = import.meta.env.VITE_BACKEND_URL;
+      let backendSuccess = false;
+      
+      if (backendUrl) {
+        // Use custom backend
+        const res = await fetch(`${backendUrl}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: email, password }),
+        });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        toast.error(errorData.error || "Login failed");
-        setLoading(false);
-        return;
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem("admin_token", data.token);
+          localStorage.setItem("admin_user", data.username);
+          localStorage.setItem("admin_role", data.role || "admin");
+          localStorage.setItem("admin_id", data.id || "admin");
+          backendSuccess = true;
+        }
+      } 
+      
+      if (!backendSuccess) {
+        // Fallback: Use Supabase directly if backend failed or is unavailable
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          toast.error(error.message || "Invalid credentials");
+          setLoading(false);
+          return;
+        }
+
+        if (data.session) {
+          localStorage.setItem("admin_token", data.session.access_token);
+          localStorage.setItem("admin_user", data.user?.user_metadata?.full_name || email.split("@")[0]);
+          localStorage.setItem("admin_role", "user"); // Regular user
+          localStorage.setItem("admin_id", data.user?.id || "user");
+        }
       }
 
-      const data = await res.json();
-      localStorage.setItem("admin_token", data.token);
-      localStorage.setItem("admin_user", data.username);
-      localStorage.setItem("admin_role", data.role || "admin");
-      localStorage.setItem("admin_id", data.id || "admin");
-
       toast.success("Logged in successfully");
-      navigate({ to: "/admin" });
+      const role = localStorage.getItem("admin_role");
+      if (role === "admin" || role === "staff") {
+        navigate({ to: "/admin" });
+      } else {
+        navigate({ to: "/" });
+      }
     } catch (err: any) {
       toast.error(err?.message || "Connection failed");
     } finally {

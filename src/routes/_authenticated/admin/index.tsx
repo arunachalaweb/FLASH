@@ -39,7 +39,7 @@ import { toast } from "sonner";
 const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
 
 async function apiFetch(endpoint: string, options?: RequestInit) {
-  const token = localStorage.getItem("admin_token");
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
   const res = await fetch(`${BACKEND_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -74,8 +74,9 @@ function StaffDashboard({ staffId }: { staffId: string }) {
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  const token = localStorage.getItem("admin_token");
-  const staffName = localStorage.getItem("admin_user") || "Staff";
+  const hasLocalStorage = typeof window !== "undefined";
+  const token = hasLocalStorage ? localStorage.getItem("admin_token") : null;
+  const staffName = hasLocalStorage ? (localStorage.getItem("admin_user") || "Staff") : "Staff";
 
   async function loadProjects() {
     setLoading(true);
@@ -391,8 +392,9 @@ function StaffDashboard({ staffId }: { staffId: string }) {
 }
 
 function Dashboard() {
-  const role = localStorage.getItem("admin_role") || "admin";
-  const staffId = localStorage.getItem("admin_id") || "";
+  const hasLocalStorage = typeof window !== "undefined";
+  const role = hasLocalStorage ? (localStorage.getItem("admin_role") || "admin") : "admin";
+  const staffId = hasLocalStorage ? (localStorage.getItem("admin_id") || "") : "";
 
   if (role === "staff") {
     return <StaffDashboard staffId={staffId} />;

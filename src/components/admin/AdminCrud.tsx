@@ -49,7 +49,7 @@ export function AdminCrud({
 
   async function apiFetch(path: string, method = "GET", body?: any) {
     const url = `${BACKEND_URL}/api/${table}${path}`;
-    const token = localStorage.getItem("admin_token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
     const opts: any = { method, headers: {} };
     if (body) {
       opts.headers["content-type"] = "application/json";
@@ -201,7 +201,7 @@ export function AdminCrud({
     const formData = new FormData();
     formData.append("file", file);
 
-    const token = localStorage.getItem("admin_token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
     try {
       const res = await fetch(`${BACKEND_URL}/api/upload`, {
         method: "POST",

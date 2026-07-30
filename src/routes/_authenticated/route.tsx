@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    // Check for admin/staff token
-    const adminToken = localStorage.getItem("admin_token");
-    const adminUser = localStorage.getItem("admin_user");
-    const adminRole = localStorage.getItem("admin_role") || "admin";
-    const adminId = localStorage.getItem("admin_id") || "admin";
+    // Check for admin/staff/user token
+    const hasLocalStorage = typeof localStorage !== "undefined";
+    const adminToken = hasLocalStorage ? localStorage.getItem("admin_token") : null;
+    const adminUser = hasLocalStorage ? localStorage.getItem("admin_user") : null;
+    const adminRole = hasLocalStorage ? (localStorage.getItem("admin_role") || "admin") : "admin";
+    const adminId = hasLocalStorage ? (localStorage.getItem("admin_id") || "admin") : "admin";
     
     if (adminToken && adminUser) {
       return { user: { id: adminId, email: adminUser, role: adminRole } };

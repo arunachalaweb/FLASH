@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-KJkY8l8U.js";import{g as t}from"./index-DagfAstd.js";var n=e(),r=()=>(0,n.jsx)(t,{});export{r as component};

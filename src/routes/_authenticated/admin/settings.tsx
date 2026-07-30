@@ -35,10 +35,10 @@ function Settings() {
   const [testing, setTesting] = useState(false);
   const [smtp, setSmtp] = useState<SmtpSettings>(initialSmtp);
   const [loading, setLoading] = useState(true);
-  const username = localStorage.getItem("admin_user") || "admin";
+  const username = typeof window !== "undefined" ? (localStorage.getItem("admin_user") || "admin") : "admin";
 
   const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
-  const token = localStorage.getItem("admin_token") || "default-admin-token";
+  const token = typeof window !== "undefined" ? (localStorage.getItem("admin_token") || "default-admin-token") : "default-admin-token";
 
   useEffect(() => {
     async function fetchSettings() {

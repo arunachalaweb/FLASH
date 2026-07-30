@@ -78,7 +78,7 @@ export function AdminShell({ email, children }: { email: string; children: React
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const role = localStorage.getItem("admin_role") || "admin";
+  const role = typeof window !== "undefined" ? (localStorage.getItem("admin_role") || "admin") : "admin";
   const sections = role === "staff" ? staffSections : adminSections;
 
   const onSignOut = async () => {

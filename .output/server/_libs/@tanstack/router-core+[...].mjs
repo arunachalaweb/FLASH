@@ -1,7 +1,5 @@
-import { n as globalthis_default, r as init_globalthis } from "../supabase__realtime-js+unenv.mjs";
 import { C as createInlineCssStyleAsset, F as createLRUCache, I as invariant, L as decodePath, M as rootRouteId, S as createInlineCssPlaceholderAsset, T as getStylesheetHref, b as GLOBAL_TSR, x as TSR_SCRIPT_BARRIER_ID } from "./react-router+[...].mjs";
 //#region node_modules/seroval/dist/esm/production/index.mjs
-init_globalthis();
 var L = ((i) => (i[i.AggregateError = 1] = "AggregateError", i[i.ArrowFunction = 2] = "ArrowFunction", i[i.ErrorPrototypeStack = 4] = "ErrorPrototypeStack", i[i.ObjectAssign = 8] = "ObjectAssign", i[i.BigIntTypedArray = 16] = "BigIntTypedArray", i[i.RegExp = 32] = "RegExp", i))(L || {});
 var v$1 = Symbol.asyncIterator;
 var dr = Symbol.hasInstance;
@@ -204,7 +202,7 @@ typeof globalThis != "undefined" ? Object.defineProperty(globalThis, U, {
 	configurable: !0,
 	writable: !1,
 	enumerable: !1
-}) : typeof globalthis_default != "undefined" && Object.defineProperty(globalthis_default, U, {
+}) : typeof global != "undefined" && Object.defineProperty(global, U, {
 	value: j$1,
 	configurable: !0,
 	writable: !1,
