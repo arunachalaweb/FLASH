@@ -140,19 +140,23 @@ function LoginPage() {
       
       if (backendUrl) {
         // Use custom backend
-        const res = await fetch(`${backendUrl}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: email, password }),
-        });
+        try {
+          const res = await fetch(`${backendUrl}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: email, password }),
+          });
 
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem("admin_token", data.token);
-          localStorage.setItem("admin_user", data.username);
-          localStorage.setItem("admin_role", data.role || "admin");
-          localStorage.setItem("admin_id", data.id || "admin");
-          backendSuccess = true;
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem("admin_token", data.token);
+            localStorage.setItem("admin_user", data.username);
+            localStorage.setItem("admin_role", data.role || "admin");
+            localStorage.setItem("admin_id", data.id || "admin");
+            backendSuccess = true;
+          }
+        } catch (backendErr) {
+          console.warn("Backend login fetch failed, falling back to Supabase", backendErr);
         }
       } 
       
