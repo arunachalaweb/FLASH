@@ -5,23 +5,31 @@ export function PageHero({
   title,
   crumb,
   tagline,
+  compact = false,
 }: {
   title: string;
   crumb: string;
   tagline?: string;
+  compact?: boolean;
 }) {
   return (
-    <section className="relative min-h-[440px] md:min-h-[520px] overflow-hidden pt-[220px] md:pt-[260px] pb-16">
+    <section className={`relative overflow-hidden pb-10 ${
+      compact 
+        ? "min-h-[280px] md:min-h-[320px] pt-[140px] md:pt-[160px]" 
+        : "min-h-[440px] md:min-h-[520px] pt-[220px] md:pt-[260px]"
+    }`}>
       <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-brand-navy-deep/92 via-brand-navy-deep/75 to-brand-navy/40" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl" />
       <div className="pointer-events-none absolute -top-10 left-1/4 h-64 w-64 rounded-full bg-brand-gold/20 blur-3xl" />
       <div className="relative mx-auto max-w-7xl px-4 md:px-6">
-        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+        <h1 className={`font-display font-bold text-white leading-tight ${
+          compact ? "text-2xl md:text-3xl lg:text-4xl" : "text-xl md:text-5xl lg:text-6xl"
+        }`}>
           {title}
         </h1>
-        {tagline && <p className="mt-3 text-white/75 max-w-2xl">{tagline}</p>}
-        <p className="mt-3 text-sm text-white/80">
+        {tagline && <p className="mt-2 text-white/75 text-xs md:text-sm max-w-2xl">{tagline}</p>}
+        <p className="mt-2 text-xs text-white/80">
           <Link to="/" className="hover:text-primary">
             Home
           </Link>
