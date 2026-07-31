@@ -251,23 +251,73 @@ model Category {
   updated_at  DateTime? @updatedAt
 }
 
+model Brand {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  logo_url    String?
+  description String?
+  products    Product[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime? @updatedAt
+}
+
 model Product {
-  id             String      @id @default(uuid())
-  name           String
-  slug           String      @unique
-  description    String?
-  price          Float
-  sale_price     Float?
-  sku            String?     @unique
-  stock_quantity Int         @default(0)
-  manage_stock   Boolean     @default(true)
-  images         String?     // JSON array of strings
-  published      Boolean     @default(true)
-  category_id    String?
-  category       Category?   @relation(fields: [category_id], references: [id])
-  order_items    OrderItem[]
-  created_at     DateTime    @default(now())
-  updated_at     DateTime?   @updatedAt
+  id               String             @id @default(uuid())
+  name             String
+  slug             String             @unique
+  description      String?
+  price            Float
+  sale_price       Float?
+  sku              String?            @unique
+  stock_quantity   Int                @default(0)
+  manage_stock     Boolean            @default(true)
+  images           String?            // JSON array of strings
+  published        Boolean            @default(true)
+  category_id      String?
+  category         Category?          @relation(fields: [category_id], references: [id])
+  brand_id         String?
+  brand            Brand?             @relation(fields: [brand_id], references: [id])
+  order_items      OrderItem[]
+  package_items    SolarPackageItem[]
+  
+  // Solar Specifications
+  datasheet_url    String?
+  video_url        String?
+  weight           Float?             // Weight in kg (for shipping calculation)
+  watt_capacity    Int?               // e.g. 550 for panels
+  voltage          String?            // e.g. 12V, 24V, 48V, 230V
+  phase            String?            // e.g. single-phase, three-phase
+  battery_capacity String?            // e.g. 150Ah, 200Ah
+  panel_technology String?            // e.g. TOPCon, PERC
+  cell_type        String?            // e.g. Monocrystalline, Polycrystalline
+
+  created_at       DateTime           @default(now())
+  updated_at       DateTime?          @updatedAt
+}
+
+model SolarPackage {
+  id            String             @id @default(uuid())
+  name          String
+  slug          String             @unique
+  description   String?
+  price         Float
+  image_url     String?
+  features      String?            // JSON string array
+  package_items SolarPackageItem[]
+  enquiries     SolarEnquiry[]
+  created_at    DateTime           @default(now())
+  updated_at    DateTime?          @updatedAt
+}
+
+model SolarPackageItem {
+  id          String       @id @default(uuid())
+  package_id  String
+  package     SolarPackage @relation(fields: [package_id], references: [id], onDelete: Cascade)
+  product_id  String?
+  product     Product?     @relation(fields: [product_id], references: [id], onDelete: SetNull)
+  quantity    Int
+  created_at  DateTime     @default(now())
 }
 
 model Customer {
@@ -282,6 +332,7 @@ model Customer {
   state         String?
   postal_code   String?
   orders        Order[]
+  enquiries     SolarEnquiry[]
   created_at    DateTime  @default(now())
   updated_at    DateTime? @updatedAt
 }
@@ -304,6 +355,7 @@ model Order {
   order_items          OrderItem[]
   invoices             Invoice[]
   credit_notes         CreditNote[]
+  quotation_id         String?
   created_at           DateTime     @default(now())
   updated_at           DateTime?    @updatedAt
 }
@@ -339,4 +391,63 @@ model CreditNote {
   reason             String?
   created_at         DateTime  @default(now())
   updated_at         DateTime? @updatedAt
+}
+
+model SolarEnquiry {
+  id                 String        @id @default(uuid())
+  customer_id        String?
+  customer           Customer?     @relation(fields: [customer_id], references: [id])
+  name               String
+  email              String
+  phone              String
+  location           String
+  required_capacity  String?       // e.g. 3kW, 5kW
+  usage_type         String        @default("residential") // residential, commercial, agricultural
+  monthly_bill       String?
+  roof_type          String?
+  installation_req   Boolean       @default(true)
+  message            String?
+  file_url           String?
+  status             String        @default("pending") // pending, quoted, ordered, closed
+  package_id         String?
+  package            SolarPackage? @relation(fields: [package_id], references: [id])
+  quotations         Quotation[]
+  created_at         DateTime      @default(now())
+  updated_at         DateTime?     @updatedAt
+}
+
+model Quotation {
+  id               String       @id @default(uuid())
+  quotation_number String       @unique
+  enquiry_id       String?
+  enquiry          SolarEnquiry? @relation(fields: [enquiry_id], references: [id])
+  customer_name    String
+  customer_email   String
+  customer_phone   String?
+  items            String       // JSON string array of items: { name, quantity, price, total }
+  total_amount     Float
+  status           String       @default("draft") // draft, sent, accepted, declined
+  valid_until      DateTime?
+  created_at       DateTime     @default(now())
+  updated_at       DateTime?    @updatedAt
+}
+
+model Coupon {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  discount_type  String    @default("fixed") // fixed, percentage
+  discount_value Float
+  min_order_val  Float     @default(0)
+  active         Boolean   @default(true)
+  expires_at     DateTime?
+  created_at     DateTime  @default(now())
+}
+
+model ShippingZone {
+  id          String   @id @default(uuid())
+  pincode     String   @unique
+  base_charge Float    @default(0)
+  per_kg_rate Float    @default(0)
+  available   Boolean  @default(true)
+  created_at  DateTime @default(now())
 }

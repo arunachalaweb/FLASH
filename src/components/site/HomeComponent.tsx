@@ -721,6 +721,61 @@ export function HomeComponent() {
         </div>
       </section>
 
+      {/* ── COMPLETE SOLAR PACKAGES & SUBSIDY SECTION ── */}
+      <section className="relative py-24 border-t border-white/5 bg-slate-900">
+        <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+          <div className="text-center mb-16">
+            <p className="text-primary font-semibold text-sm inline-flex items-center gap-2 tracking-widest">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              TURNKEY PACKAGES
+            </p>
+            <h2 className="mt-3 font-display text-3xl md:text-5xl font-bold leading-tight">
+              Ready Solar{" "}
+              <span className="bg-gradient-to-r from-primary via-brand-gold to-primary bg-clip-text text-transparent">
+                Power Packages
+              </span>
+            </h2>
+            <p className="mt-4 text-white/60 max-w-2xl mx-auto text-sm">
+              Pre-engineered On-Grid and Off-Grid solar packages featuring top-tier panels, smart inverters, mounting structures, and 5-year maintenance assurance.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { name: "1 kW On-Grid Solar Package", slug: "1kw-on-grid", desc: "Ideal for basic lighting, fans, TV, and laptops. Save up to ₹1,200 monthly.", price: "55,000" },
+              { name: "3 kW On-Grid Solar Package", slug: "3kw-on-grid", desc: "Best for standard homes with AC, fridge, and washing machines. Save up to ₹3,500 monthly.", price: "1,75,000" },
+              { name: "5 kW On-Grid Solar Package", slug: "5kw-on-grid", desc: "For large duplex villas or small offices with heavy air conditioning loads.", price: "2,60,000" },
+            ].map((p, idx) => (
+              <div key={idx} className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 flex flex-col justify-between hover:border-primary/40 transition shadow-xl">
+                <div>
+                  <h4 className="font-bold text-lg text-white">{p.name}</h4>
+                  <p className="text-xs text-white/60 mt-2 leading-relaxed">{p.desc}</p>
+                </div>
+                <div className="mt-8 pt-4 border-t border-white/5 flex items-center justify-between">
+                  <span className="text-[10px] text-white/40 uppercase block">Investment</span>
+                  <span className="text-base font-black font-mono text-primary">₹{p.price}*</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Government Subsidy Notice Banner */}
+          <div className="mt-14 bg-gradient-to-r from-primary/10 to-brand-gold/10 border border-primary/20 p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">MNRE Rooftop Subsidy Program</span>
+              <h4 className="font-black text-lg text-white">Claim Up to 40% Government Subsidy</h4>
+              <p className="text-xs text-white/70 max-w-xl">Rooftop solar solar systems are heavily subsidized by the government of India. We manage direct applications and net-metering approvals locally.</p>
+            </div>
+            <Link
+              to="/packages"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-primary-hover text-slate-900 text-xs font-black px-6 py-3.5 transition"
+            >
+              Explore Packages <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* HIGHLIGHTS */}
       <section className="relative py-12 md:py-20">
         <div className="relative mx-auto max-w-7xl px-4 md:px-6">
@@ -990,6 +1045,21 @@ export function HomeComponent() {
       </section>
 
       <Footer />
+
+      {/* Floating WhatsApp Quick Consultation Button */}
+      <a
+        href="https://wa.me/919150011428?text=Hi%20FLASH,%20I%20want%20to%20know%20more%20about%20your%20solar%20rooftop%25%20system%20packages%20and%20avail%20government%20subsidies."
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-[0_10px_30px_-5px_rgba(34,197,94,0.5)] transition duration-300 transform hover:scale-110 flex items-center justify-center"
+      >
+        <svg
+          className="h-6 w-6 fill-current"
+          viewBox="0 0 24 24"
+        >
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.665.989 3.3 1.489 5.361 1.49 5.485.003 9.948-4.41 9.951-9.878.001-2.65-1.025-5.14-2.89-7.009C17.153 1.888 14.67 .862 12.01.861c-5.489 0-9.953 4.414-9.957 9.882-.001 1.93.507 3.812 1.47 5.516l-.963 3.52 3.63-.952c.002.001.002.001.003 0z" />
+        </svg>
+      </a>
     </div>
   );
 }

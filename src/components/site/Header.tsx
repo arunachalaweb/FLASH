@@ -18,8 +18,9 @@ import { getCart } from "@/lib/cart";
 
 const nav = [
   { label: "Home", to: "/" },
-  { label: "About Us", to: "/about" },
   { label: "Products", to: "/products" },
+  { label: "Solar Packages", to: "/packages" },
+  { label: "Consultation Request", to: "/enquiry" },
   { label: "Services", to: "/services" },
   { label: "Projects", to: "/projects" },
   { label: "Expertise", to: "/expertise" },

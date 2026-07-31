@@ -15,9 +15,11 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as EnquiryRouteImport } from './routes/enquiry'
 import { Route as ExpertiseRouteImport } from './routes/expertise'
 import { Route as InvestorsPartnersRouteImport } from './routes/investors-partners'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PackagesRouteImport } from './routes/packages'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as QuoteRouteImport } from './routes/quote'
@@ -41,11 +43,16 @@ import { Route as AuthenticatedAdminCmsProjectsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCmsServicesRouteImport } from './routes/_authenticated/admin/cms.services'
 import { Route as AuthenticatedAdminCmsSlidesRouteImport } from './routes/_authenticated/admin/cms.slides'
 import { Route as AuthenticatedAdminCmsTestimonialsRouteImport } from './routes/_authenticated/admin/cms.testimonials'
+import { Route as AuthenticatedAdminEcommerceBrandsRouteImport } from './routes/_authenticated/admin/ecommerce.brands'
+import { Route as AuthenticatedAdminEcommerceCouponsRouteImport } from './routes/_authenticated/admin/ecommerce.coupons'
 import { Route as AuthenticatedAdminEcommerceCreditNotesRouteImport } from './routes/_authenticated/admin/ecommerce.credit-notes'
 import { Route as AuthenticatedAdminEcommerceCustomersRouteImport } from './routes/_authenticated/admin/ecommerce.customers'
+import { Route as AuthenticatedAdminEcommerceEnquiriesRouteImport } from './routes/_authenticated/admin/ecommerce.enquiries'
 import { Route as AuthenticatedAdminEcommerceInventoryRouteImport } from './routes/_authenticated/admin/ecommerce.inventory'
 import { Route as AuthenticatedAdminEcommerceOrdersRouteImport } from './routes/_authenticated/admin/ecommerce.orders'
+import { Route as AuthenticatedAdminEcommercePackagesRouteImport } from './routes/_authenticated/admin/ecommerce.packages'
 import { Route as AuthenticatedAdminEcommerceProductsRouteImport } from './routes/_authenticated/admin/ecommerce.products'
+import { Route as AuthenticatedAdminEcommerceShippingRouteImport } from './routes/_authenticated/admin/ecommerce.shipping'
 import { Route as AuthenticatedAdminEnquiriesContactRouteImport } from './routes/_authenticated/admin/enquiries.contact'
 import { Route as AuthenticatedAdminEnquiriesInvestorsRouteImport } from './routes/_authenticated/admin/enquiries.investors'
 import { Route as AuthenticatedAdminEnquiriesPartnersRouteImport } from './routes/_authenticated/admin/enquiries.partners'
@@ -81,6 +88,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnquiryRoute = EnquiryRouteImport.update({
+  id: '/enquiry',
+  path: '/enquiry',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExpertiseRoute = ExpertiseRouteImport.update({
   id: '/expertise',
   path: '/expertise',
@@ -94,6 +106,11 @@ const InvestorsPartnersRoute = InvestorsPartnersRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PackagesRoute = PackagesRouteImport.update({
+  id: '/packages',
+  path: '/packages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -219,6 +236,18 @@ const AuthenticatedAdminCmsTestimonialsRoute =
     path: '/cms/testimonials',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminEcommerceBrandsRoute =
+  AuthenticatedAdminEcommerceBrandsRouteImport.update({
+    id: '/ecommerce/brands',
+    path: '/ecommerce/brands',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceCouponsRoute =
+  AuthenticatedAdminEcommerceCouponsRouteImport.update({
+    id: '/ecommerce/coupons',
+    path: '/ecommerce/coupons',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminEcommerceCreditNotesRoute =
   AuthenticatedAdminEcommerceCreditNotesRouteImport.update({
     id: '/ecommerce/credit-notes',
@@ -229,6 +258,12 @@ const AuthenticatedAdminEcommerceCustomersRoute =
   AuthenticatedAdminEcommerceCustomersRouteImport.update({
     id: '/ecommerce/customers',
     path: '/ecommerce/customers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceEnquiriesRoute =
+  AuthenticatedAdminEcommerceEnquiriesRouteImport.update({
+    id: '/ecommerce/enquiries',
+    path: '/ecommerce/enquiries',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminEcommerceInventoryRoute =
@@ -243,10 +278,22 @@ const AuthenticatedAdminEcommerceOrdersRoute =
     path: '/ecommerce/orders',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminEcommercePackagesRoute =
+  AuthenticatedAdminEcommercePackagesRouteImport.update({
+    id: '/ecommerce/packages',
+    path: '/ecommerce/packages',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminEcommerceProductsRoute =
   AuthenticatedAdminEcommerceProductsRouteImport.update({
     id: '/ecommerce/products',
     path: '/ecommerce/products',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceShippingRoute =
+  AuthenticatedAdminEcommerceShippingRouteImport.update({
+    id: '/ecommerce/shipping',
+    path: '/ecommerce/shipping',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 const AuthenticatedAdminEnquiriesContactRoute =
@@ -286,9 +333,11 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/enquiry': typeof EnquiryRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/packages': typeof PackagesRoute
   '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -312,11 +361,16 @@ export interface FileRoutesByFullPath {
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/admin/ecommerce/brands': typeof AuthenticatedAdminEcommerceBrandsRoute
+  '/admin/ecommerce/coupons': typeof AuthenticatedAdminEcommerceCouponsRoute
   '/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
   '/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/admin/ecommerce/enquiries': typeof AuthenticatedAdminEcommerceEnquiriesRoute
   '/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
   '/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/admin/ecommerce/packages': typeof AuthenticatedAdminEcommercePackagesRoute
   '/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
+  '/admin/ecommerce/shipping': typeof AuthenticatedAdminEcommerceShippingRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -329,9 +383,11 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/enquiry': typeof EnquiryRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/packages': typeof PackagesRoute
   '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -354,11 +410,16 @@ export interface FileRoutesByTo {
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/admin/ecommerce/brands': typeof AuthenticatedAdminEcommerceBrandsRoute
+  '/admin/ecommerce/coupons': typeof AuthenticatedAdminEcommerceCouponsRoute
   '/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
   '/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/admin/ecommerce/enquiries': typeof AuthenticatedAdminEcommerceEnquiriesRoute
   '/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
   '/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/admin/ecommerce/packages': typeof AuthenticatedAdminEcommercePackagesRoute
   '/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
+  '/admin/ecommerce/shipping': typeof AuthenticatedAdminEcommerceShippingRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -373,9 +434,11 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/enquiry': typeof EnquiryRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/packages': typeof PackagesRoute
   '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -399,11 +462,16 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/_authenticated/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/_authenticated/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/_authenticated/admin/ecommerce/brands': typeof AuthenticatedAdminEcommerceBrandsRoute
+  '/_authenticated/admin/ecommerce/coupons': typeof AuthenticatedAdminEcommerceCouponsRoute
   '/_authenticated/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
   '/_authenticated/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/_authenticated/admin/ecommerce/enquiries': typeof AuthenticatedAdminEcommerceEnquiriesRoute
   '/_authenticated/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
   '/_authenticated/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/_authenticated/admin/ecommerce/packages': typeof AuthenticatedAdminEcommercePackagesRoute
   '/_authenticated/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
+  '/_authenticated/admin/ecommerce/shipping': typeof AuthenticatedAdminEcommerceShippingRoute
   '/_authenticated/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/_authenticated/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/_authenticated/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -418,9 +486,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/enquiry'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/packages'
     | '/products'
     | '/projects'
     | '/quote'
@@ -444,11 +514,16 @@ export interface FileRouteTypes {
     | '/admin/cms/services'
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
+    | '/admin/ecommerce/brands'
+    | '/admin/ecommerce/coupons'
     | '/admin/ecommerce/credit-notes'
     | '/admin/ecommerce/customers'
+    | '/admin/ecommerce/enquiries'
     | '/admin/ecommerce/inventory'
     | '/admin/ecommerce/orders'
+    | '/admin/ecommerce/packages'
     | '/admin/ecommerce/products'
+    | '/admin/ecommerce/shipping'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/investors'
     | '/admin/enquiries/partners'
@@ -461,9 +536,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/enquiry'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/packages'
     | '/products'
     | '/projects'
     | '/quote'
@@ -486,11 +563,16 @@ export interface FileRouteTypes {
     | '/admin/cms/services'
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
+    | '/admin/ecommerce/brands'
+    | '/admin/ecommerce/coupons'
     | '/admin/ecommerce/credit-notes'
     | '/admin/ecommerce/customers'
+    | '/admin/ecommerce/enquiries'
     | '/admin/ecommerce/inventory'
     | '/admin/ecommerce/orders'
+    | '/admin/ecommerce/packages'
     | '/admin/ecommerce/products'
+    | '/admin/ecommerce/shipping'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/investors'
     | '/admin/enquiries/partners'
@@ -504,9 +586,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/enquiry'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/packages'
     | '/products'
     | '/projects'
     | '/quote'
@@ -530,11 +614,16 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cms/services'
     | '/_authenticated/admin/cms/slides'
     | '/_authenticated/admin/cms/testimonials'
+    | '/_authenticated/admin/ecommerce/brands'
+    | '/_authenticated/admin/ecommerce/coupons'
     | '/_authenticated/admin/ecommerce/credit-notes'
     | '/_authenticated/admin/ecommerce/customers'
+    | '/_authenticated/admin/ecommerce/enquiries'
     | '/_authenticated/admin/ecommerce/inventory'
     | '/_authenticated/admin/ecommerce/orders'
+    | '/_authenticated/admin/ecommerce/packages'
     | '/_authenticated/admin/ecommerce/products'
+    | '/_authenticated/admin/ecommerce/shipping'
     | '/_authenticated/admin/enquiries/contact'
     | '/_authenticated/admin/enquiries/investors'
     | '/_authenticated/admin/enquiries/partners'
@@ -549,9 +638,11 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  EnquiryRoute: typeof EnquiryRoute
   ExpertiseRoute: typeof ExpertiseRoute
   InvestorsPartnersRoute: typeof InvestorsPartnersRoute
   LoginRoute: typeof LoginRoute
+  PackagesRoute: typeof PackagesRoute
   ProductsRoute: typeof ProductsRouteWithChildren
   ProjectsRoute: typeof ProjectsRoute
   QuoteRoute: typeof QuoteRoute
@@ -608,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/enquiry': {
+      id: '/enquiry'
+      path: '/enquiry'
+      fullPath: '/enquiry'
+      preLoaderRoute: typeof EnquiryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/expertise': {
       id: '/expertise'
       path: '/expertise'
@@ -627,6 +725,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/packages': {
+      id: '/packages'
+      path: '/packages'
+      fullPath: '/packages'
+      preLoaderRoute: typeof PackagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -790,6 +895,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCmsTestimonialsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/ecommerce/brands': {
+      id: '/_authenticated/admin/ecommerce/brands'
+      path: '/ecommerce/brands'
+      fullPath: '/admin/ecommerce/brands'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceBrandsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/coupons': {
+      id: '/_authenticated/admin/ecommerce/coupons'
+      path: '/ecommerce/coupons'
+      fullPath: '/admin/ecommerce/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/ecommerce/credit-notes': {
       id: '/_authenticated/admin/ecommerce/credit-notes'
       path: '/ecommerce/credit-notes'
@@ -802,6 +921,13 @@ declare module '@tanstack/react-router' {
       path: '/ecommerce/customers'
       fullPath: '/admin/ecommerce/customers'
       preLoaderRoute: typeof AuthenticatedAdminEcommerceCustomersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/enquiries': {
+      id: '/_authenticated/admin/ecommerce/enquiries'
+      path: '/ecommerce/enquiries'
+      fullPath: '/admin/ecommerce/enquiries'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceEnquiriesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/ecommerce/inventory': {
@@ -818,11 +944,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEcommerceOrdersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/ecommerce/packages': {
+      id: '/_authenticated/admin/ecommerce/packages'
+      path: '/ecommerce/packages'
+      fullPath: '/admin/ecommerce/packages'
+      preLoaderRoute: typeof AuthenticatedAdminEcommercePackagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/ecommerce/products': {
       id: '/_authenticated/admin/ecommerce/products'
       path: '/ecommerce/products'
       fullPath: '/admin/ecommerce/products'
       preLoaderRoute: typeof AuthenticatedAdminEcommerceProductsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/shipping': {
+      id: '/_authenticated/admin/ecommerce/shipping'
+      path: '/ecommerce/shipping'
+      fullPath: '/admin/ecommerce/shipping'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceShippingRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/enquiries/contact': {
@@ -875,11 +1015,16 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCmsServicesRoute: typeof AuthenticatedAdminCmsServicesRoute
   AuthenticatedAdminCmsSlidesRoute: typeof AuthenticatedAdminCmsSlidesRoute
   AuthenticatedAdminCmsTestimonialsRoute: typeof AuthenticatedAdminCmsTestimonialsRoute
+  AuthenticatedAdminEcommerceBrandsRoute: typeof AuthenticatedAdminEcommerceBrandsRoute
+  AuthenticatedAdminEcommerceCouponsRoute: typeof AuthenticatedAdminEcommerceCouponsRoute
   AuthenticatedAdminEcommerceCreditNotesRoute: typeof AuthenticatedAdminEcommerceCreditNotesRoute
   AuthenticatedAdminEcommerceCustomersRoute: typeof AuthenticatedAdminEcommerceCustomersRoute
+  AuthenticatedAdminEcommerceEnquiriesRoute: typeof AuthenticatedAdminEcommerceEnquiriesRoute
   AuthenticatedAdminEcommerceInventoryRoute: typeof AuthenticatedAdminEcommerceInventoryRoute
   AuthenticatedAdminEcommerceOrdersRoute: typeof AuthenticatedAdminEcommerceOrdersRoute
+  AuthenticatedAdminEcommercePackagesRoute: typeof AuthenticatedAdminEcommercePackagesRoute
   AuthenticatedAdminEcommerceProductsRoute: typeof AuthenticatedAdminEcommerceProductsRoute
+  AuthenticatedAdminEcommerceShippingRoute: typeof AuthenticatedAdminEcommerceShippingRoute
   AuthenticatedAdminEnquiriesContactRoute: typeof AuthenticatedAdminEnquiriesContactRoute
   AuthenticatedAdminEnquiriesInvestorsRoute: typeof AuthenticatedAdminEnquiriesInvestorsRoute
   AuthenticatedAdminEnquiriesPartnersRoute: typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -901,16 +1046,26 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCmsSlidesRoute: AuthenticatedAdminCmsSlidesRoute,
     AuthenticatedAdminCmsTestimonialsRoute:
       AuthenticatedAdminCmsTestimonialsRoute,
+    AuthenticatedAdminEcommerceBrandsRoute:
+      AuthenticatedAdminEcommerceBrandsRoute,
+    AuthenticatedAdminEcommerceCouponsRoute:
+      AuthenticatedAdminEcommerceCouponsRoute,
     AuthenticatedAdminEcommerceCreditNotesRoute:
       AuthenticatedAdminEcommerceCreditNotesRoute,
     AuthenticatedAdminEcommerceCustomersRoute:
       AuthenticatedAdminEcommerceCustomersRoute,
+    AuthenticatedAdminEcommerceEnquiriesRoute:
+      AuthenticatedAdminEcommerceEnquiriesRoute,
     AuthenticatedAdminEcommerceInventoryRoute:
       AuthenticatedAdminEcommerceInventoryRoute,
     AuthenticatedAdminEcommerceOrdersRoute:
       AuthenticatedAdminEcommerceOrdersRoute,
+    AuthenticatedAdminEcommercePackagesRoute:
+      AuthenticatedAdminEcommercePackagesRoute,
     AuthenticatedAdminEcommerceProductsRoute:
       AuthenticatedAdminEcommerceProductsRoute,
+    AuthenticatedAdminEcommerceShippingRoute:
+      AuthenticatedAdminEcommerceShippingRoute,
     AuthenticatedAdminEnquiriesContactRoute:
       AuthenticatedAdminEnquiriesContactRoute,
     AuthenticatedAdminEnquiriesInvestorsRoute:
@@ -958,9 +1113,11 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  EnquiryRoute: EnquiryRoute,
   ExpertiseRoute: ExpertiseRoute,
   InvestorsPartnersRoute: InvestorsPartnersRoute,
   LoginRoute: LoginRoute,
+  PackagesRoute: PackagesRoute,
   ProductsRoute: ProductsRouteWithChildren,
   ProjectsRoute: ProjectsRoute,
   QuoteRoute: QuoteRoute,

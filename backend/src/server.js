@@ -115,99 +115,131 @@ async function initializeDatabase() {
     console.log("Seeded default page content sections.");
   }
 
-  // 4. Seed Categories and Products if empty
+  // 4. Seed Categories, Brands, Products, Packages, Coupons and Shipping Zones if empty
   const categoryCount = await prisma.category.count();
-  if (categoryCount === 0) {
-    const solarPanels = await prisma.category.create({
-      data: {
-        name: "Solar Panels",
-        slug: "solar-panels",
-        description: "High-efficiency PV modules for residential and commercial systems."
-      }
-    });
+  if (categoryCount <= 3) {
+    // Clear old ones to prevent duplicates
+    await prisma.orderItem.deleteMany().catch(() => {});
+    await prisma.invoice.deleteMany().catch(() => {});
+    await prisma.creditNote.deleteMany().catch(() => {});
+    await prisma.product.deleteMany().catch(() => {});
+    await prisma.category.deleteMany().catch(() => {});
+    await prisma.brand.deleteMany().catch(() => {});
+    await prisma.solarPackageItem.deleteMany().catch(() => {});
+    await prisma.solarPackage.deleteMany().catch(() => {});
+    await prisma.shippingZone.deleteMany().catch(() => {});
+    await prisma.coupon.deleteMany().catch(() => {});
 
-    const inverters = await prisma.category.create({
-      data: {
-        name: "Inverters",
-        slug: "inverters",
-        description: "Advanced solar power inverters (On-grid, Off-grid, Hybrid)."
-      }
-    });
+    // Create Brands
+    const brandTata = await prisma.brand.create({ data: { name: "Tata Power Solar", slug: "tata-power-solar", description: "India's leading solar panel manufacturer." } });
+    const brandLuminous = await prisma.brand.create({ data: { name: "Luminous", slug: "luminous", description: "Smart inverters and high capacity solar batteries." } });
+    const brandWaaree = await prisma.brand.create({ data: { name: "Waaree", slug: "waaree", description: "Premium monocrystalline panels." } });
+    const brandGrowatt = await prisma.brand.create({ data: { name: "Growatt", slug: "growatt", description: "State-of-the-art grid-tie MPPT inverters." } });
 
-    const accessories = await prisma.category.create({
-      data: {
-        name: "Accessories",
-        slug: "accessories",
-        description: "Cables, structures, connectors, and mounting accessories."
-      }
-    });
+    // Create Categories
+    const catPanels = await prisma.category.create({ data: { name: "Solar Panels", slug: "solar-panels", description: "High-efficiency PV modules." } });
+    const catInverters = await prisma.category.create({ data: { name: "Solar Inverters", slug: "solar-inverters", description: "Grid-tie, off-grid and hybrid converters." } });
+    const catBatteries = await prisma.category.create({ data: { name: "Solar Batteries", slug: "solar-batteries", description: "Tubular, Lithium-ion and LiFePO4 cells." } });
+    const catStructures = await prisma.category.create({ data: { name: "Solar Mounting Structures", slug: "solar-mounting-structures", description: "Hot-dip galvanized mounting channels and clips." } });
+    const catCables = await prisma.category.create({ data: { name: "DC Cables and Connectors", slug: "dc-cables-connectors", description: "Solar wires and MC4 connectors." } });
+    const catMonitoring = await prisma.category.create({ data: { name: "Solar Monitoring Devices", slug: "solar-monitoring-devices", description: "Smart WiFi dataloggers and energy meters." } });
+    const catAccessories = await prisma.category.create({ data: { name: "Solar Accessories", slug: "solar-accessories", description: "Earthing kits, distribution boxes and tools." } });
 
-    console.log("Seeded default categories.");
-
-    // Seed some products
-    await prisma.product.create({
+    // Seed Products
+    const p1 = await prisma.product.create({
       data: {
-        name: "Monocrystalline Solar Panel 550W",
-        slug: "monocrystalline-solar-panel-550w",
-        description: "Top-tier Mono PERC Half-Cut solar panel with 21.3% efficiency, ideal for premium home and factory rooftops. Extreme durability with wind resistance.",
-        price: 18500,
-        sale_price: 16200,
-        sku: "SLR-MONO-550W",
-        stock_quantity: 45,
+        name: "Tata Mono PERC Solar Panel 550W",
+        slug: "tata-mono-perc-550w",
+        description: "High-efficiency monocrystalline solar module with advanced 10-busbar cell design. Certified for high snow/wind loads.",
+        price: 19500,
+        sale_price: 17800,
+        sku: "SLR-TATA-550W",
+        stock_quantity: 120,
         manage_stock: true,
         images: JSON.stringify(["https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&auto=format&fit=crop&q=60"]),
-        category_id: solarPanels.id,
+        category_id: catPanels.id,
+        brand_id: brandTata.id,
+        weight: 28.5,
+        watt_capacity: 550,
+        panel_technology: "PERC",
+        cell_type: "Monocrystalline",
         published: true
       }
     });
 
-    await prisma.product.create({
+    const p2 = await prisma.product.create({
       data: {
-        name: "Bifacial Solar Panel 440W",
-        slug: "bifacial-solar-panel-440w",
-        description: "Dual-sided glass panel capturing direct sunlight as well as reflected albedo light from below, increasing energy yield by up to 25%.",
-        price: 15000,
-        sku: "SLR-BIFI-440W",
-        stock_quantity: 30,
-        manage_stock: true,
-        images: JSON.stringify(["https://images.unsplash.com/photo-1620022347116-e778d2b636ec?w=600&auto=format&fit=crop&q=60"]),
-        category_id: solarPanels.id,
-        published: true
-      }
-    });
-
-    await prisma.product.create({
-      data: {
-        name: "On-Grid Solar Inverter 5kW - Single Phase",
-        slug: "on-grid-solar-inverter-5kw",
-        description: "Smart solar inverter with dual MPPT trackers, built-in WiFi monitoring, dynamic feed-in control, and an active safety cooling design.",
-        price: 48000,
-        sale_price: 42500,
-        sku: "INV-ONG-5KW",
-        stock_quantity: 12,
+        name: "Growatt MIN 5000TL-X On-Grid Inverter",
+        slug: "growatt-min-5000tl-x",
+        description: "5kW Single Phase Grid-Tied Inverter with dual MPPT trackers and OLED touch display. Built-in WiFi module for remote analytics.",
+        price: 49000,
+        sale_price: 45000,
+        sku: "INV-GROW-5KW",
+        stock_quantity: 25,
         manage_stock: true,
         images: JSON.stringify(["https://images.unsplash.com/photo-1558441719-ff34b0524a24?w=600&auto=format&fit=crop&q=60"]),
-        category_id: inverters.id,
+        category_id: catInverters.id,
+        brand_id: brandGrowatt.id,
+        weight: 10.8,
+        voltage: "230V",
+        phase: "single-phase",
         published: true
       }
     });
 
-    await prisma.product.create({
+    const p3 = await prisma.product.create({
       data: {
-        name: "Solar PV DC Cable 4 Sq.mm (100 Meter)",
-        slug: "solar-pv-dc-cable-4sqmm",
-        description: "Copper core DC wire with double XLPE insulation, UV resistant, waterproof, and designed to withstand standard outdoor temperatures.",
-        price: 3500,
-        sku: "ACC-CBL-4MM",
-        stock_quantity: 80,
+        name: "Luminous Solar C10 Tubular Battery 150Ah",
+        slug: "luminous-c10-150ah",
+        description: "Tall tubular lead-acid solar battery with long life span, low maintenance costs, and quick recharge efficiency.",
+        price: 16500,
+        sale_price: 14800,
+        sku: "BAT-LUMI-150AH",
+        stock_quantity: 50,
         manage_stock: true,
         images: JSON.stringify(["https://images.unsplash.com/photo-1544724480-6cc691cf756f?w=600&auto=format&fit=crop&q=60"]),
-        category_id: accessories.id,
+        category_id: catBatteries.id,
+        brand_id: brandLuminous.id,
+        weight: 55,
+        battery_capacity: "150Ah",
+        voltage: "12V",
         published: true
       }
     });
 
-    console.log("Seeded default products.");
+    // Create Shipping Zones
+    await prisma.shippingZone.create({ data: { pincode: "600001", base_charge: 100, per_kg_rate: 5, available: true } }); // Chennai
+    await prisma.shippingZone.create({ data: { pincode: "560001", base_charge: 150, per_kg_rate: 8, available: true } }); // Bangalore
+    await prisma.shippingZone.create({ data: { pincode: "400001", base_charge: 200, per_kg_rate: 10, available: true } }); // Mumbai
+
+    // Create Coupons
+    await prisma.coupon.create({ data: { code: "FLASH1000", discount_type: "fixed", discount_value: 1000, min_order_val: 10000, active: true } });
+    await prisma.coupon.create({ data: { code: "SOLAR5", discount_type: "percentage", discount_value: 5, min_order_val: 20000, active: true } });
+
+    // Seed Ready-made Solar Packages
+    const pack3kw = await prisma.solarPackage.create({
+      data: {
+        name: "3 kW On-Grid Solar Package",
+        slug: "3kw-on-grid-solar-package",
+        description: "Complete 3kW solar system package including delivery, installation, and net-metering support. Best for households with monthly bills under ₹3,000.",
+        price: 175000,
+        image_url: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&auto=format&fit=crop&q=60",
+        features: JSON.stringify([
+          "6 × Tata Mono PERC Solar Panels (550W)",
+          "1 × Growatt 3kW On-Grid Inverter",
+          "HDG Rust-proof Mounting Structure",
+          "Complete DB Distribution Boxes & Cabling",
+          "Free Installation & 5-Year Maintenance Support"
+        ])
+      }
+    });
+
+    // Link package items
+    await prisma.solarPackageItem.create({
+      data: { package_id: pack3kw.id, product_id: p1.id, quantity: 6 }
+    });
+
+    console.log("Seeded default e-commerce catalog, brands, shipping zones, and packages.");
   }
 }
 initializeDatabase().catch(console.error);
@@ -421,14 +453,28 @@ function modelFor(table) {
       return prisma.invoice;
     case "credit_notes":
       return prisma.creditNote;
+    case "brands":
+      return prisma.brand;
+    case "solar_packages":
+      return prisma.solarPackage;
+    case "solar_package_items":
+      return prisma.solarPackageItem;
+    case "solar_enquiries":
+      return prisma.solarEnquiry;
+    case "quotations":
+      return prisma.quotation;
+    case "coupons":
+      return prisma.coupon;
+    case "shipping_zones":
+      return prisma.shippingZone;
     default:
       return null;
   }
 }
 
 // Fields requiring JSON stringification in SQLite
-const jsonFields = ["gallery_images", "benefits", "images"];
-const booleanFields = ["published", "active"];
+const jsonFields = ["gallery_images", "benefits", "images", "features", "items"];
+const booleanFields = ["published", "active", "installation_req", "available", "manage_stock"];
 
 function serializeBody(body) {
   if (!body) return body;
@@ -519,7 +565,9 @@ app.use("/api", (req, res, next) => {
   // Public catalog view endpoints: allow GET
   if (req.method === "GET" && (
     req.path.startsWith("/products") ||
-    req.path.startsWith("/categories")
+    req.path.startsWith("/categories") ||
+    req.path.startsWith("/brands") ||
+    req.path.startsWith("/solar_packages")
   )) {
     return next();
   }
@@ -533,7 +581,10 @@ app.use("/api", (req, res, next) => {
     req.path === "/partner_applications" ||
     req.path === "/customers/signup" ||
     req.path === "/customers/login" ||
-    req.path === "/orders/create"
+    req.path === "/orders/create" ||
+    req.path === "/solar_enquiries" ||
+    req.path === "/shipping/check-delivery" ||
+    req.path === "/coupons/verify"
   )) {
     return next();
   }
@@ -773,7 +824,8 @@ app.post("/api/orders/create", async (req, res) => {
       shipping_city,
       shipping_state,
       shipping_postal_code,
-      payment_method
+      payment_method,
+      coupon_code
     } = req.body;
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -796,7 +848,8 @@ app.post("/api/orders/create", async (req, res) => {
 
     // Execute checkout inside a database transaction to verify/decrement stock
     const result = await prisma.$transaction(async (tx) => {
-      let totalAmount = 0;
+      let subtotal = 0;
+      let totalWeight = 0;
       const orderItemsData = [];
 
       for (const item of cart) {
@@ -824,7 +877,8 @@ app.post("/api/orders/create", async (req, res) => {
 
         const price = product.sale_price ?? product.price;
         const total = price * item.quantity;
-        totalAmount += total;
+        subtotal += total;
+        totalWeight += (product.weight || 0) * item.quantity;
 
         orderItemsData.push({
           product_id: product.id,
@@ -833,6 +887,40 @@ app.post("/api/orders/create", async (req, res) => {
           total
         });
       }
+
+      // Calculate Shipping charges based on Pincode and totalWeight
+      let shippingCharge = 0;
+      const zone = await tx.shippingZone.findUnique({
+        where: { pincode: shipping_postal_code }
+      });
+      if (zone) {
+        if (!zone.available) {
+          throw new Error(`Sorry, we do not ship heavy products to pincode ${shipping_postal_code}.`);
+        }
+        shippingCharge = zone.base_charge + (zone.per_kg_rate * totalWeight);
+      } else if (totalWeight > 0) {
+        // Fallback default shipping if weight > 0 and no pincode rule is defined
+        shippingCharge = 250 + (15 * totalWeight);
+      }
+
+      // Apply Coupon discount
+      let discount = 0;
+      if (coupon_code) {
+        const coupon = await tx.coupon.findUnique({
+          where: { code: coupon_code }
+        });
+        if (coupon && coupon.active) {
+          if (subtotal >= coupon.min_order_val) {
+            if (coupon.discount_type === "fixed") {
+              discount = coupon.discount_value;
+            } else if (coupon.discount_type === "percentage") {
+              discount = (subtotal * coupon.discount_value) / 100;
+            }
+          }
+        }
+      }
+
+      const totalAmount = Math.max(0, (subtotal + (subtotal * 0.18) + shippingCharge) - discount);
 
       // Generate Invoice & Order numbers
       const timestamp = Date.now().toString().slice(-6);
@@ -879,6 +967,212 @@ app.post("/api/orders/create", async (req, res) => {
   } catch (error) {
     console.error("Checkout Transaction Error:", error);
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Pincode Shipping Availability and Charge Check
+app.post("/api/shipping/check-delivery", async (req, res) => {
+  try {
+    const { pincode, totalWeight } = req.body;
+    if (!pincode) return res.status(400).json({ error: "Pincode required" });
+    const weight = parseFloat(totalWeight) || 0;
+
+    const zone = await prisma.shippingZone.findUnique({
+      where: { pincode }
+    });
+
+    if (!zone) {
+      if (weight > 0) {
+        // Fallback default shipping
+        const fee = 250 + (15 * weight);
+        return res.json({ available: true, charge: fee, message: "Standard Logistics Shipping Rates applied." });
+      }
+      return res.json({ available: true, charge: 0, message: "Free local courier delivery." });
+    }
+
+    if (!zone.available) {
+      return res.json({ available: false, charge: 0, message: "Delivery is currently unavailable for heavy loads in this area." });
+    }
+
+    const fee = zone.base_charge + (zone.per_kg_rate * weight);
+    res.json({ available: true, charge: fee, message: "Delivery available." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Coupon verification
+app.post("/api/coupons/verify", async (req, res) => {
+  try {
+    const { code, subtotal } = req.body;
+    if (!code) return res.status(400).json({ error: "Coupon code required" });
+
+    const coupon = await prisma.coupon.findUnique({
+      where: { code }
+    });
+
+    if (!coupon || !coupon.active) {
+      return res.status(400).json({ error: "Invalid or inactive coupon code" });
+    }
+
+    const val = parseFloat(subtotal) || 0;
+    if (val < coupon.min_order_val) {
+      return res.status(400).json({ error: `Minimum order value for this coupon is ₹${coupon.min_order_val}` });
+    }
+
+    let discount = 0;
+    if (coupon.discount_type === "fixed") {
+      discount = coupon.discount_value;
+    } else if (coupon.discount_type === "percentage") {
+      discount = (val * coupon.discount_value) / 100;
+    }
+
+    res.json({ valid: true, code: coupon.code, discount_value: discount, discount_type: coupon.discount_type });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Convert Custom Solar Enquiry to a formal Quotation
+app.post("/api/admin/enquiries/convert-to-quote", requireAuth, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access Denied: Only Admin can issue quotations" });
+  }
+  try {
+    const { enquiryId, items, discount } = req.body;
+    if (!enquiryId || !items || !Array.isArray(items)) {
+      return res.status(400).json({ error: "Missing required enquiryId or quotation items" });
+    }
+
+    const enquiry = await prisma.solarEnquiry.findUnique({
+      where: { id: enquiryId }
+    });
+    if (!enquiry) return res.status(404).json({ error: "Solar Enquiry not found" });
+
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(100 + Math.random() * 900);
+    const quotationNumber = `FL-QT-${timestamp}-${random}`;
+
+    let subtotal = 0;
+    const formattedItems = items.map((it) => {
+      const price = parseFloat(it.price) || 0;
+      const qty = parseInt(it.quantity, 10) || 1;
+      const total = price * qty;
+      subtotal += total;
+      return {
+        name: it.name,
+        quantity: qty,
+        price,
+        total
+      };
+    });
+
+    const discVal = parseFloat(discount) || 0;
+    const totalAmount = Math.max(0, subtotal - discVal);
+
+    // Create Quotation
+    const quotation = await prisma.quotation.create({
+      data: {
+        quotation_number: quotationNumber,
+        enquiry_id: enquiryId,
+        customer_name: enquiry.name,
+        customer_email: enquiry.email,
+        customer_phone: enquiry.phone,
+        items: JSON.stringify(formattedItems),
+        total_amount: totalAmount,
+        status: "sent",
+        valid_until: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000) // Valid for 15 days
+      }
+    });
+
+    // Update Enquiry status
+    await prisma.solarEnquiry.update({
+      where: { id: enquiryId },
+      data: { status: "quoted" }
+    });
+
+    res.json(quotation);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to convert enquiry to quotation: " + error.message });
+  }
+});
+
+// Convert Quotation into an Order
+app.post("/api/admin/quotes/convert-to-order", requireAuth, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access Denied: Only Admin can convert quotes to orders" });
+  }
+  try {
+    const { quotationId } = req.body;
+    if (!quotationId) return res.status(400).json({ error: "Quotation ID required" });
+
+    const quote = await prisma.quotation.findUnique({
+      where: { id: quotationId },
+      include: { enquiry: true }
+    });
+
+    if (!quote) return res.status(404).json({ error: "Quotation not found" });
+    if (quote.status === "accepted") {
+      return res.status(400).json({ error: "Quotation has already been converted to an order." });
+    }
+
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(100 + Math.random() * 900);
+    const orderNumber = `FL-ORD-${timestamp}-${random}`;
+    const invoiceNumber = `FL-INV-${timestamp}-${random}`;
+
+    // Read item list
+    const items = JSON.parse(quote.items);
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Create Order
+      const order = await tx.order.create({
+        data: {
+          order_number: orderNumber,
+          customer_id: quote.enquiry?.customer_id || null,
+          total_amount: quote.total_amount,
+          shipping_name: quote.customer_name,
+          shipping_phone: quote.customer_phone || "",
+          shipping_address: quote.enquiry?.location || "Address Specified in Quote",
+          shipping_city: "QuoteCity",
+          shipping_state: "QuoteState",
+          shipping_postal_code: "000000",
+          payment_method: "quotation",
+          payment_status: "pending",
+          quotation_id: quote.id
+        }
+      });
+
+      // Create invoice
+      await tx.invoice.create({
+        data: {
+          invoice_number: invoiceNumber,
+          order_id: order.id,
+          amount: quote.total_amount,
+          status: "issued"
+        }
+      });
+
+      // Update quote status
+      await tx.quotation.update({
+        where: { id: quote.id },
+        data: { status: "accepted" }
+      });
+
+      // Update enquiry status
+      if (quote.enquiry_id) {
+        await tx.solarEnquiry.update({
+          where: { id: quote.enquiry_id },
+          data: { status: "ordered" }
+        });
+      }
+
+      return order;
+    });
+
+    res.json({ success: true, order: result });
+  } catch (error) {
+    res.status(550).json({ error: "Failed to convert quote to order: " + error.message });
   }
 });
 

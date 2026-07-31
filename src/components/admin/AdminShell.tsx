@@ -40,7 +40,11 @@ const adminSections: Section[] = [
     items: [
       { to: "/admin/ecommerce/products", label: "Products Manager", icon: ShoppingBag },
       { to: "/admin/ecommerce/inventory", label: "Inventory (Stock)", icon: Package },
+      { to: "/admin/ecommerce/packages", label: "Packages Manager", icon: Layers },
       { to: "/admin/ecommerce/orders", label: "Orders & Invoices", icon: ClipboardList },
+      { to: "/admin/ecommerce/enquiries", label: "Enquiries & Quotes", icon: FileText },
+      { to: "/admin/ecommerce/coupons", label: "Coupons & Codes", icon: Newspaper },
+      { to: "/admin/ecommerce/shipping", label: "Logistics Zones", icon: Settings },
       { to: "/admin/ecommerce/credit-notes", label: "Credit Notes", icon: CreditCard },
       { to: "/admin/ecommerce/customers", label: "Customers Registry", icon: Users },
     ]
