@@ -13,6 +13,7 @@ app.use(express.json());
 
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -490,6 +491,50 @@ app.delete("/api/:table/:id", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Delete failed" });
+  }
+});
+
+// Backup DB
+app.get("/api/db/backup", requireAuth, (req, res) => {
+  const dbPath = path.join(__dirname, "..", "prisma", "dev.db");
+  if (!fs.existsSync(dbPath)) {
+    return res.status(404).json({ error: "Database file not found" });
+  }
+  res.download(dbPath, `backup-${Date.now()}.db`);
+});
+
+// Restore DB
+app.post("/api/db/restore", requireAuth, upload.single("database"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No database file uploaded" });
+    
+    const targetPath = path.join(__dirname, "..", "prisma", "dev.db");
+    
+    // Disconnect prisma safely
+    await prisma.$disconnect();
+    
+    // Backup current just in case
+    if (fs.existsSync(targetPath)) {
+      fs.copyFileSync(targetPath, targetPath + '.old');
+    }
+    
+    // Clean WAL and SHM if they exist
+    const walPath = targetPath + "-wal";
+    const shmPath = targetPath + "-shm";
+    if (fs.existsSync(walPath)) fs.unlinkSync(walPath);
+    if (fs.existsSync(shmPath)) fs.unlinkSync(shmPath);
+    
+    // Replace with new db
+    fs.copyFileSync(req.file.path, targetPath);
+    fs.unlinkSync(req.file.path);
+    
+    // Reconnect
+    await prisma.$connect();
+    
+    res.json({ message: "Database restored successfully!" });
+  } catch (err) {
+    console.error("Restore error:", err);
+    res.status(500).json({ error: "Failed to restore database: " + err.message });
   }
 });
 

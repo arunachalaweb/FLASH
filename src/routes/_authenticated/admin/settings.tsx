@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Save, User, Loader2, Mail, Server, Key, ShieldCheck, ToggleLeft, ToggleRight } from "lucide-react";
+import { Save, User, Loader2, Mail, Server, Key, ShieldCheck, ToggleLeft, ToggleRight, Database, Download, UploadCloud } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   head: () => ({ meta: [{ title: "Admin Settings | Flash" }] }),
@@ -108,6 +108,65 @@ function Settings() {
       toast.error(err.message || "Failed to verify SMTP server.");
     } finally {
       setTesting(false);
+    }
+  }
+
+  async function handleDownloadDB() {
+    try {
+      // Trigger a direct download from the backend
+      const res = await fetch(`${BACKEND_URL}/api/db/backup`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to download backup");
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `flash-db-backup-${new Date().toISOString().split('T')[0]}.db`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      toast.success("Database backup downloaded!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to download backup");
+    }
+  }
+
+  async function handleRestoreDB(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!window.confirm("Are you sure you want to restore this database? This will REPLACE all current data, including admins, projects, and settings. This cannot be undone!")) {
+      e.target.value = '';
+      return;
+    }
+
+    const toastId = toast.loading("Uploading and restoring database...");
+    try {
+      const formData = new FormData();
+      formData.append("database", file);
+
+      const res = await fetch(`${BACKEND_URL}/api/db/restore`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to restore database");
+      
+      toast.success("Database restored successfully!", { id: toastId });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to restore database", { id: toastId });
+    } finally {
+      e.target.value = '';
     }
   }
 
@@ -322,6 +381,54 @@ function Settings() {
                   <Save className="h-4 w-4" />
                 )}
                 Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Database Management Section */}
+      <div className="rounded-2xl border bg-white p-6 space-y-6">
+        <div className="flex items-center gap-2 border-b pb-4">
+          <Database className="h-5 w-5 text-primary" />
+          <h2 className="font-display text-lg font-bold text-brand-navy">Database Management</h2>
+        </div>
+        
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="space-y-3">
+            <h3 className="font-semibold text-brand-navy">Backup Database</h3>
+            <p className="text-sm text-slate-500">
+              Download a full snapshot of your current database. Keep this file safe.
+            </p>
+            <button
+              type="button"
+              onClick={handleDownloadDB}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+            >
+              <Download className="h-4 w-4" />
+              Download Backup
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            <h3 className="font-semibold text-brand-navy text-red-600">Restore Database</h3>
+            <p className="text-sm text-slate-500">
+              Upload a previous backup file to restore. <strong className="text-red-500">Warning:</strong> This will overwrite all current data!
+            </p>
+            <div className="relative">
+              <input 
+                type="file" 
+                accept=".db"
+                onChange={handleRestoreDB}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                title="Select a database backup file"
+              />
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition w-auto pointer-events-none"
+              >
+                <UploadCloud className="h-4 w-4" />
+                Upload & Restore
               </button>
             </div>
           </div>
