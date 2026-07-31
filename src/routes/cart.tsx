@@ -347,7 +347,7 @@ function CartPage() {
                 <button
                   onClick={handleProceedToCheckout}
                   disabled={shippingFee === null && totalWeight > 0}
-                  className="w-full inline-flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl shadow-lg transition hover:shadow-xl disabled:bg-slate-200 disabled:text-slate-400"
+                  className="w-full inline-flex items-center justify-center gap-2 py-4 bg-brand-navy-deep text-white font-bold rounded-2xl shadow-lg hover:bg-brand-navy transition disabled:bg-slate-200 disabled:text-slate-400"
                 >
                   Proceed to Checkout <ArrowRight className="h-4 w-4" />
                 </button>
