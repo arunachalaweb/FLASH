@@ -26,8 +26,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, "..", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Serve uploads statically
-app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/uploads", express.static(uploadsDir));
+
+// File upload endpoint
+app.post("/api/upload", requireAuth, upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
 
 // Create default admin user if not exists
 async function createDefaultAdmin() {

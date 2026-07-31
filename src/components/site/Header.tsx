@@ -7,15 +7,11 @@ import {
   X,
   ArrowRight,
   LogIn,
-  UserPlus,
   LayoutDashboard,
   LogOut,
-  User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import logo from "@/assets/flash-logo-updated.png";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 
 const nav = [
   { label: "Home", to: "/" },
@@ -29,12 +25,24 @@ const nav = [
 
 export function Header({ overlay = false }: { overlay?: boolean } = {}) {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
-  const isAdmin = useIsAdmin(user?.id);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [adminUser, setAdminUser] = useState<string | null>(null);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAdminToken(localStorage.getItem("admin_token"));
+      setAdminUser(localStorage.getItem("admin_user"));
+    }
+  }, []);
+
+  const signOut = () => {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
+    localStorage.removeItem("admin_role");
+    localStorage.removeItem("admin_id");
+    setAdminToken(null);
+    setAdminUser(null);
     setMenuOpen(false);
     setOpen(false);
   };
@@ -78,37 +86,28 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
               <Phone className="h-3.5 w-3.5" /> +91 91500 11428
             </a>
             <span className="h-4 w-px bg-white/20" aria-hidden="true" />
-            {user ? (
+            {adminToken ? (
               <div className="relative">
                 <button
                   onClick={() => setMenuOpen((v) => !v)}
                   className="inline-flex items-center gap-2 hover:text-primary transition-colors"
                 >
                   <span className="grid place-items-center h-5 w-5 rounded-full bg-primary text-brand-navy-deep text-[10px] font-bold">
-                    {(user.email ?? "?").slice(0, 1).toUpperCase()}
+                    {(adminUser ?? "?").slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="max-w-[140px] truncate">{user.email}</span>
+                  <span className="max-w-[140px] truncate">{adminUser}</span>
                 </button>
                 {menuOpen && (
                   <div
                     className="absolute right-0 top-7 z-50 w-56 rounded-xl border border-white/10 bg-brand-navy-deep shadow-2xl overflow-hidden text-white"
                     onMouseLeave={() => setMenuOpen(false)}
                   >
-                    {isAdmin && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-xs hover:bg-primary/20"
-                      >
-                        <LayoutDashboard className="h-3.5 w-3.5 text-primary" /> Admin Dashboard
-                      </Link>
-                    )}
                     <Link
-                      to="/"
+                      to="/admin"
                       onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-2 px-4 py-2.5 text-xs hover:bg-primary/20"
                     >
-                      <User className="h-3.5 w-3.5 text-primary" /> My Account
+                      <LayoutDashboard className="h-3.5 w-3.5 text-primary" /> Admin Dashboard
                     </Link>
                     <button
                       onClick={signOut}
@@ -125,16 +124,7 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
                   to="/login"
                   className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
                 >
-                  <LogIn className="h-3.5 w-3.5" /> Login
-                </Link>
-                <span className="text-white/40" aria-hidden="true">
-                  |
-                </span>
-                <Link
-                  to="/signup"
-                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
-                >
-                  <UserPlus className="h-3.5 w-3.5" /> Signup
+                  <LogIn className="h-3.5 w-3.5" /> Admin Login
                 </Link>
               </div>
             )}
@@ -237,42 +227,31 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
             >
               <Phone className="h-4 w-4 text-primary" /> +91 91500 11428
             </a>
-            <div className="grid grid-cols-2 gap-3">
-              {user ? (
+            <div className="grid grid-cols-1 gap-3">
+              {adminToken ? (
                 <>
-                  {isAdmin && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setOpen(false)}
-                      className="col-span-2 flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/40 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
-                    >
-                      <LayoutDashboard className="h-4 w-4 text-primary" /> Admin Dashboard
-                    </Link>
-                  )}
+                  <Link
+                    to="/admin"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/40 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
+                  >
+                    <LayoutDashboard className="h-4 w-4 text-primary" /> Admin Dashboard
+                  </Link>
                   <button
                     onClick={signOut}
-                    className="col-span-2 flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-red-500/20 transition"
+                    className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-red-500/20 transition"
                   >
-                    <LogOut className="h-4 w-4 text-primary" /> Sign out ({user.email})
+                    <LogOut className="h-4 w-4 text-primary" /> Sign out ({adminUser})
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    to="/login"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-white/10 transition"
-                  >
-                    <LogIn className="h-4 w-4 text-primary" /> Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-primary hover:border-primary transition"
-                  >
-                    <UserPlus className="h-4 w-4 text-primary" /> Signup
-                  </Link>
-                </>
+                <Link
+                  to="/login"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-white/10 transition"
+                >
+                  <LogIn className="h-4 w-4 text-primary" /> Admin Login
+                </Link>
               )}
             </div>
           </div>

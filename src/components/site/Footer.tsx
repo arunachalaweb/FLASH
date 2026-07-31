@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import logo from "@/assets/flash-logo-updated.png";
 
@@ -219,7 +218,6 @@ function NewsletterBand() {
           body: JSON.stringify({ email: parsed.data, active: true }),
         });
         if (!res.ok) {
-          // If unique constraint fails, treat as already subscribed
           if (res.status === 500) {
             toast.success("Subscribed!", {
               description: "You're already in our list or subscribed successfully.",
@@ -238,15 +236,10 @@ function NewsletterBand() {
         return;
       }
     } else {
-      const { error: dbErr } = await supabase
-        .from("newsletter_subscribers")
-        .upsert({ email: parsed.data, active: true }, { onConflict: "email" });
-      if (dbErr) {
-        setStatus("idle");
-        setError(dbErr.message);
-        toast.error(dbErr.message);
-        return;
-      }
+      setStatus("idle");
+      setError("Local backend URL not configured.");
+      toast.error("Local backend URL not configured.");
+      return;
     }
     setStatus("success");
     setEmail("");

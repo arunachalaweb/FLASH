@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Mail,
   FileText,
@@ -37,8 +36,7 @@ import {
 import { toast } from "sonner";
 
 const isDev = import.meta.env.DEV;
-  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
-
+const BACKEND_URL = isDev ? "http://localhost:4000" : "";
 async function apiFetch(endpoint: string, options?: RequestInit) {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
   const res = await fetch(`${BACKEND_URL}${endpoint}`, {

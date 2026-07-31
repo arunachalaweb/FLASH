@@ -1,0 +1,1 @@
+var e=`/assets/hero-solar-BVTPJKHP.jpg`;export{e as t};

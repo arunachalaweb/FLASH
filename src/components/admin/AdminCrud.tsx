@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database, Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X, Save, Search, Loader2, ArrowUp, ArrowDown } from "lucide-react";
 
@@ -75,16 +73,8 @@ export function AdminCrud({
   async function load() {
     setLoading(true);
     try {
-      if (useBackend) {
-        const data = await apiFetch("", "GET");
-        setRows(((data ?? []) as unknown) as Row[]);
-      } else {
-        const { data, error } = await supabase.from(table as any).select("*").order(orderBy.column, {
-          ascending: orderBy.ascending,
-        });
-        if (error) toast.error(error.message);
-        setRows(((data ?? []) as unknown) as Row[]);
-      }
+      const data = await apiFetch("", "GET");
+      setRows(((data ?? []) as unknown) as Row[]);
     } catch (e: any) {
       toast.error(e.message ?? String(e));
     }
@@ -133,23 +123,11 @@ export function AdminCrud({
       }
     }
     try {
-      if (useBackend) {
-        const { id, created_at, updated_at, ...rest } = payload;
-        if (id) {
-          await apiFetch(`/${id}`, "PUT", rest);
-        } else {
-          await apiFetch("", "POST", rest);
-        }
+      const { id, created_at, updated_at, ...rest } = payload;
+      if (id) {
+        await apiFetch(`/${id}`, "PUT", rest);
       } else {
-        let error: any;
-        if (payload.id) {
-          const { id, created_at, updated_at, ...rest } = payload;
-          ({ error } = await supabase.from(table as any).update(rest).eq("id", id));
-        } else {
-          const { id, created_at, updated_at, ...rest } = payload;
-          ({ error } = await supabase.from(table as any).insert(rest));
-        }
-        if (error) throw error;
+        await apiFetch("", "POST", rest);
       }
     } catch (e: any) {
       setSaving(false);
@@ -165,12 +143,7 @@ export function AdminCrud({
   async function remove(id: string) {
     if (!confirm("Delete this item? This cannot be undone.")) return;
     try {
-      if (useBackend) {
-        await apiFetch(`/${id}`, "DELETE");
-      } else {
-        const { error } = await supabase.from(table as any).delete().eq("id", id as any);
-        if (error) return toast.error(error.message);
-      }
+      await apiFetch(`/${id}`, "DELETE");
     } catch (e: any) {
       return toast.error(e.message ?? String(e));
     }
@@ -181,12 +154,7 @@ export function AdminCrud({
   async function reorder(row: RowT, dir: -1 | 1) {
     const next = (Number((row as any).sort_order ?? (row as any).sortOrder ?? 0) as number) + dir;
     try {
-      if (useBackend) {
-        await apiFetch(`/${(row as any).id}`, "PUT", { sortOrder: next });
-      } else {
-        const { error } = await supabase.from(table as any).update({ sort_order: next }).eq("id", (row as any).id);
-        if (error) return toast.error(error.message);
-      }
+      await apiFetch(`/${(row as any).id}`, "PUT", { sortOrder: next });
     } catch (e: any) {
       return toast.error(e.message ?? String(e));
     }

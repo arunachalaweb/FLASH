@@ -1,5 +1,5 @@
 import { t as project_residential_default } from "./project-residential-BUNYnuq8.mjs";
-import { At as BatteryCharging, G as Lightbulb, Ot as Building2, lt as Factory, o as Wrench, pt as Droplets, tt as House, v as Sun } from "../_libs/lucide-react.mjs";
+import { $ as House, At as BatteryCharging, Ot as Building2, W as Lightbulb, _ as Sun, dt as Droplets, o as Wrench, st as Factory } from "../_libs/lucide-react.mjs";
 import { n as project_industrial_default, r as project_utility_default, t as project_commercial_default } from "./project-utility-CoJD2s69.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/services-data-oIchF6z1.js
 var service_epc_default = "/assets/service-epc-CBLGbHY4.jpg";

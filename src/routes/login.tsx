@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import logo from "@/assets/flash-logo-updated.png";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -154,31 +153,17 @@ function LoginPage() {
             localStorage.setItem("admin_role", data.role || "admin");
             localStorage.setItem("admin_id", data.id || "admin");
             backendSuccess = true;
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || "Invalid credentials");
           }
-        } catch (backendErr) {
-          console.warn("Backend login fetch failed, falling back to Supabase", backendErr);
+        } catch (backendErr: any) {
+          throw backendErr;
         }
       } 
       
       if (!backendSuccess) {
-        // Fallback: Use Supabase directly if backend failed or is unavailable
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          toast.error(error.message || "Invalid credentials");
-          setLoading(false);
-          return;
-        }
-
-        if (data.session) {
-          localStorage.setItem("admin_token", data.session.access_token);
-          localStorage.setItem("admin_user", data.user?.user_metadata?.full_name || email.split("@")[0]);
-          localStorage.setItem("admin_role", "user"); // Regular user
-          localStorage.setItem("admin_id", data.user?.id || "user");
-        }
+        throw new Error("Unable to connect to the login server.");
       }
 
       toast.success("Logged in successfully");

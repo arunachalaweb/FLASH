@@ -2,7 +2,6 @@ import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Send, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const SERVICES = [
   "Rooftop Solar",
@@ -122,29 +121,7 @@ export function ContactForm({ mode = "contact" }: { mode?: "contact" | "quote" }
           throw new Error(txt || `Request failed: ${res.status}`);
         }
       } else {
-        if (mode === "quote") {
-          const { error } = await supabase.from("quote_requests").insert({
-            name: parsed.data.name,
-            email: parsed.data.email,
-            phone: parsed.data.phone,
-            service_type: parsed.data.service,
-            city: parsed.data.city,
-            budget: parsed.data.budget,
-            load_kw: parsed.data.load_kw,
-            property_type: parsed.data.property_type,
-            message: parsed.data.message,
-          });
-          if (error) throw error;
-        } else {
-          const { error } = await supabase.from("contact_enquiries").insert({
-            name: parsed.data.name,
-            email: parsed.data.email,
-            phone: parsed.data.phone,
-            subject: parsed.data.service,
-            message: parsed.data.message,
-          });
-          if (error) throw error;
-        }
+        throw new Error("Local backend URL not configured.");
       }
       setStatus("success");
       toast.success(mode === "quote" ? "Quote request sent! We'll reply within 48 hours." : "Enquiry sent! We'll reach out within 24 hours.");

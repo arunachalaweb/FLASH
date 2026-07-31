@@ -1,7 +1,7 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { t as project_residential_default } from "./project-residential-BUNYnuq8.mjs";
 import { n as require_jsx_runtime, r as require_react } from "../_libs/react+tanstack__react-query.mjs";
-import { Ct as ChevronRight, Dt as Calendar, Pt as ArrowRight, R as MapPin, _ as Tag, a as X, n as ZoomIn, r as Zap, t as ZoomOut, wt as ChevronLeft } from "../_libs/lucide-react.mjs";
+import { Ct as ChevronRight, Dt as Calendar, L as MapPin, Pt as ArrowRight, a as X, g as Tag, n as ZoomIn, r as Zap, t as ZoomOut, wt as ChevronLeft } from "../_libs/lucide-react.mjs";
 import { n as project_industrial_default, r as project_utility_default, t as project_commercial_default } from "./project-utility-CoJD2s69.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/ProjectsGallery-DPP5PD0n.js
 var import_react = /* @__PURE__ */ __toESM(require_react());

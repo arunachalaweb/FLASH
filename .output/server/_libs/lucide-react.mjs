@@ -416,18 +416,6 @@ var CircleQuestionMark = createLucideIcon("circle-question-mark", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
-var Circle = createLucideIcon("circle", [["circle", {
-	cx: "12",
-	cy: "12",
-	r: "10",
-	key: "1mglay"
-}]]);
-/**
-* @license lucide-react v0.575.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
 var ClipboardList = createLucideIcon("clipboard-list", [
 	["rect", {
 		width: "8",
@@ -474,6 +462,26 @@ var Clock = createLucideIcon("clock", [["circle", {
 	d: "M12 6v6l4 2",
 	key: "mmk7yg"
 }]]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var CloudUpload = createLucideIcon("cloud-upload", [
+	["path", {
+		d: "M12 13v8",
+		key: "1l5pq0"
+	}],
+	["path", {
+		d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+		key: "1pljnt"
+	}],
+	["path", {
+		d: "m8 17 4-4 4 4",
+		key: "1quai1"
+	}]
+]);
 /**
 * @license lucide-react v0.575.0 - ISC
 *
@@ -540,6 +548,49 @@ var Cog = createLucideIcon("cog", [
 		cy: "12",
 		r: "8",
 		key: "46899m"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var Database = createLucideIcon("database", [
+	["ellipse", {
+		cx: "12",
+		cy: "5",
+		rx: "9",
+		ry: "3",
+		key: "msslwz"
+	}],
+	["path", {
+		d: "M3 5V19A9 3 0 0 0 21 19V5",
+		key: "1wlel7"
+	}],
+	["path", {
+		d: "M3 12A9 3 0 0 0 21 12",
+		key: "mv7ke4"
+	}]
+]);
+/**
+* @license lucide-react v0.575.0 - ISC
+*
+* This source code is licensed under the ISC license.
+* See the LICENSE file in the root directory of this source tree.
+*/
+var Download = createLucideIcon("download", [
+	["path", {
+		d: "M12 15V3",
+		key: "m9g1x1"
+	}],
+	["path", {
+		d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4",
+		key: "ih7n3h"
+	}],
+	["path", {
+		d: "m7 10 5 5 5-5",
+		key: "brsn70"
 	}]
 ]);
 /**
@@ -865,22 +916,6 @@ var Instagram = createLucideIcon("instagram", [
 		key: "r4j83e"
 	}]
 ]);
-/**
-* @license lucide-react v0.575.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
-var KeyRound = createLucideIcon("key-round", [["path", {
-	d: "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z",
-	key: "1s6t7t"
-}], ["circle", {
-	cx: "16.5",
-	cy: "7.5",
-	r: ".5",
-	fill: "currentColor",
-	key: "w0ekpg"
-}]]);
 /**
 * @license lucide-react v0.575.0 - ISC
 *
@@ -1769,38 +1804,6 @@ var UserCog = createLucideIcon("user-cog", [
 * This source code is licensed under the ISC license.
 * See the LICENSE file in the root directory of this source tree.
 */
-var UserPlus = createLucideIcon("user-plus", [
-	["path", {
-		d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2",
-		key: "1yyitq"
-	}],
-	["circle", {
-		cx: "9",
-		cy: "7",
-		r: "4",
-		key: "nufk8"
-	}],
-	["line", {
-		x1: "19",
-		x2: "19",
-		y1: "8",
-		y2: "14",
-		key: "1bvyxn"
-	}],
-	["line", {
-		x1: "22",
-		x2: "16",
-		y1: "11",
-		y2: "11",
-		key: "1shjgl"
-	}]
-]);
-/**
-* @license lucide-react v0.575.0 - ISC
-*
-* This source code is licensed under the ISC license.
-* See the LICENSE file in the root directory of this source tree.
-*/
 var User = createLucideIcon("user", [["path", {
 	d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",
 	key: "975kel"
@@ -1946,4 +1949,4 @@ var ZoomOut = createLucideIcon("zoom-out", [
 	}]
 ]);
 //#endregion
-export { IndianRupee as $, Quote as A, BatteryCharging as At, LogOut as B, Shield as C, ChevronRight as Ct, Send as D, Calendar as Dt, Server as E, Check as Et, MessageSquare as F, ArrowLeft as Ft, Lightbulb as G, Lock as H, MessageSquareQuote as I, ArrowDown as It, Layers as J, Leaf as K, Menu as L, Phone as M, ArrowUp as Mt, Pencil as N, ArrowUpRight as Nt, Search as O, Building2 as Ot, Newspaper as P, ArrowRight as Pt, Instagram as Q, MapPin as R, SlidersVertical as S, ChevronUp as St, Settings as T, ChevronDown as Tt, LoaderCircle as U, LogIn as V, Linkedin as W, Key as X, Landmark as Y, KeyRound as Z, Tag as _, Circle as _t, X as a, Hammer as at, Sparkles as b, CircleCheckBig as bt, User as c, FilePen as ct, UserCheck as d, Eye as dt, Image as et, TrendingUp as f, EyeOff as ft, Target as g, ClipboardList as gt, ToggleLeft as h, Clock as ht, Youtube as i, HardHat as it, Plus as j, Award as jt, Save as k, Bell as kt, UserPlus as l, Factory as lt, ToggleRight as m, Cog as mt, ZoomIn as n, Headset as nt, Wrench as o, Globe as ot, Trash2 as p, Droplets as pt, LayoutDashboard as q, Zap as r, Headphones as rt, Users as s, FileText as st, ZoomOut as t, House as tt, UserCog as u, Facebook as ut, Sun as v, CircleQuestionMark as vt, ShieldCheck as w, ChevronLeft as wt, Smile as x, CircleAlert as xt, Star as y, CircleCheck as yt, Mail as z };
+export { House as $, Plus as A, BatteryCharging as At, LogIn as B, ShieldCheck as C, ChevronRight as Ct, Search as D, Calendar as Dt, Send as E, Check as Et, MessageSquareQuote as F, ArrowLeft as Ft, Leaf as G, LoaderCircle as H, Menu as I, ArrowDown as It, Landmark as J, LayoutDashboard as K, MapPin as L, Pencil as M, ArrowUp as Mt, Newspaper as N, ArrowUpRight as Nt, Save as O, Building2 as Ot, MessageSquare as P, ArrowRight as Pt, Image as Q, Mail as R, Shield as S, ChevronUp as St, Server as T, ChevronDown as Tt, Linkedin as U, Lock as V, Lightbulb as W, Instagram as X, Key as Y, IndianRupee as Z, Sun as _, ClipboardList as _t, X as a, FileText as at, Smile as b, CircleCheckBig as bt, User as c, Facebook as ct, TrendingUp as d, Droplets as dt, Headset as et, Trash2 as f, Download as ft, Tag as g, Clock as gt, Target as h, CloudUpload as ht, Youtube as i, Globe as it, Phone as j, Award as jt, Quote as k, Bell as kt, UserCog as l, Eye as lt, ToggleLeft as m, Cog as mt, ZoomIn as n, HardHat as nt, Wrench as o, FilePen as ot, ToggleRight as p, Database as pt, Layers as q, Zap as r, Hammer as rt, Users as s, Factory as st, ZoomOut as t, Headphones as tt, UserCheck as u, EyeOff as ut, Star as v, CircleQuestionMark as vt, Settings as w, ChevronLeft as wt, SlidersVertical as x, CircleAlert as xt, Sparkles as y, CircleCheck as yt, LogOut as z };

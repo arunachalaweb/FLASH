@@ -20,7 +20,6 @@ import {
   Bell,
   Newspaper,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/flash-logo-updated.png";
 
 type Item = { to: string; label: string; icon: React.ElementType };
@@ -86,11 +85,6 @@ export function AdminShell({ email, children }: { email: string; children: React
     localStorage.removeItem("admin_user");
     localStorage.removeItem("admin_role");
     localStorage.removeItem("admin_id");
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
     navigate({ to: "/login", replace: true });
   };
 
