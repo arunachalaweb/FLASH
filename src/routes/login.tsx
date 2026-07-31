@@ -135,7 +135,7 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const backendUrl = import.meta.env.DEV ? "http://localhost:4000" : "";
+      const backendUrl = import.meta.env.DEV ? "http://localhost:4000" : window.location.origin;
       let backendSuccess = false;
       
       if (backendUrl) {
