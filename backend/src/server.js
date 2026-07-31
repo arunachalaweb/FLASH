@@ -58,43 +58,48 @@ function requireAuth(req, res, next) {
 
 // Login endpoint
 app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" });
-  }
-
-  // 1. Try admin user
-  const admin = await prisma.adminUser.findUnique({ where: { username } });
-  if (admin) {
-    const valid = await bcrypt.compare(password, admin.password);
-    if (valid) {
-      return res.json({
-        token: "default-admin-token",
-        username: admin.username,
-        role: "admin",
-        id: "admin",
-      });
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password required" });
     }
-  }
 
-  // 2. Try team member (staff)
-  const staff = await prisma.teamMember.findUnique({ where: { username } });
-  if (staff) {
-    if (staff.active === false || staff.active === "false" || staff.active === 0) {
-      return res.status(401).json({ error: "Account is suspended." });
+    // 1. Try admin user
+    const admin = await prisma.adminUser.findUnique({ where: { username } });
+    if (admin) {
+      const valid = await bcrypt.compare(password, admin.password);
+      if (valid) {
+        return res.json({
+          token: "default-admin-token",
+          username: admin.username,
+          role: "admin",
+          id: "admin",
+        });
+      }
     }
-    const valid = await bcrypt.compare(password, staff.password || "");
-    if (valid) {
-      return res.json({
-        token: "staff-token-" + staff.id,
-        username: staff.name,
-        role: "staff",
-        id: staff.id,
-      });
-    }
-  }
 
-  res.status(401).json({ error: "Invalid credentials" });
+    // 2. Try team member (staff)
+    const staff = await prisma.teamMember.findUnique({ where: { username } });
+    if (staff) {
+      if (staff.active === false || staff.active === "false" || staff.active === 0) {
+        return res.status(401).json({ error: "Account is suspended." });
+      }
+      const valid = await bcrypt.compare(password, staff.password || "");
+      if (valid) {
+        return res.json({
+          token: "staff-token-" + staff.id,
+          username: staff.name,
+          role: "staff",
+          id: staff.id,
+        });
+      }
+    }
+
+    res.status(401).json({ error: "Invalid credentials" });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ error: "Internal server error during login: " + error.message });
+  }
 });
 
 // Helper: map table param to prisma model actions

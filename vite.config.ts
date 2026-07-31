@@ -12,4 +12,19 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    plugins: [
+      {
+        name: 'override-nitro-preset',
+        config(config) {
+          if (config.nitro) {
+            config.nitro.preset = 'node-server';
+          } else {
+            config.nitro = { preset: 'node-server' };
+          }
+          return config;
+        }
+      }
+    ]
+  }
 });
