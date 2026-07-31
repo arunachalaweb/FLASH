@@ -44,7 +44,8 @@ export function AdminCrud({
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<Row | null>(null);
   const [saving, setSaving] = useState(false);
-  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+  const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
   const useBackend = Boolean(import.meta.env.VITE_BACKEND_URL);
 
   async function apiFetch(path: string, method = "GET", body?: any) {

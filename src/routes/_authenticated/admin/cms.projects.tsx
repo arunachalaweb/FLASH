@@ -9,7 +9,8 @@ export const Route = createFileRoute("/_authenticated/admin/cms/projects")({
 
 function ProjectsCms() {
   const [staffOptions, setStaffOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+  const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
 
   useEffect(() => {
     async function loadStaff() {

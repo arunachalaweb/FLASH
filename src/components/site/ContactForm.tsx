@@ -82,7 +82,8 @@ export function ContactForm({ mode = "contact" }: { mode?: "contact" | "quote" }
     }
 
     setStatus("submitting");
-    const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+    const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
     const useBackend = Boolean(import.meta.env.VITE_BACKEND_URL);
     try {
       if (useBackend) {

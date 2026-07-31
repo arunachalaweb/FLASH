@@ -36,7 +36,8 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 
-const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
 
 async function apiFetch(endpoint: string, options?: RequestInit) {
   const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;

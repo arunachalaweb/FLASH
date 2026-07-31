@@ -16,7 +16,8 @@ function MessagesCenter() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
 
-  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+  const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
   const hasLocalStorage = typeof window !== "undefined";
   const token = hasLocalStorage ? localStorage.getItem("admin_token") : null;
   const role = hasLocalStorage ? (localStorage.getItem("admin_role") || "admin") : "admin";

@@ -207,7 +207,8 @@ function NewsletterBand() {
     }
     setError(null);
     setStatus("loading");
-    const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+    const isDev = import.meta.env.DEV;
+  const BACKEND_URL = isDev ? "http://localhost:4000" : "";
     const useBackend = Boolean(import.meta.env.VITE_BACKEND_URL);
 
     if (useBackend) {

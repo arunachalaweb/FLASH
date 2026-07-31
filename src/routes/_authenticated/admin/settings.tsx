@@ -37,7 +37,8 @@ function Settings() {
   const [loading, setLoading] = useState(true);
   const username = typeof window !== "undefined" ? (localStorage.getItem("admin_user") || "admin") : "admin";
 
-  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || "http://localhost:4000";
+  const isDev = import.meta.env.DEV;
+  const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || (isDev ? "http://localhost:4000" : "");
   const token = typeof window !== "undefined" ? (localStorage.getItem("admin_token") || "default-admin-token") : "default-admin-token";
 
   useEffect(() => {
@@ -403,7 +404,7 @@ function Settings() {
             <button
               type="button"
               onClick={handleDownloadDB}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors"
             >
               <Download className="h-4 w-4" />
               Download Backup
