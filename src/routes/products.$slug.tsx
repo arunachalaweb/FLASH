@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { PageHero } from "@/components/site/PageHero";
-import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RefreshCw, Check, AlertCircle, FileText, Share2, HelpCircle, PhoneCall, PenSquare, X, Heart, RefreshCw as CompareIcon, Info, Star, Facebook, Twitter, Linkedin, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RefreshCw, Check, AlertCircle, FileText, Share2, HelpCircle, PhoneCall, PenSquare, X, Heart, Star, Facebook, Twitter, Linkedin, MessageCircle, RefreshCw as CompareIcon } from "lucide-react";
 import { addToCart } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -55,7 +55,10 @@ function ProductDetailPage() {
   const [added, setAdded] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
-  // Tabs state: description, additional, reviews
+  // Specifications option selector (mocking product specs options e.g. capacity or technology options)
+  const [selectedSpecOption, setSelectedSpecOption] = useState<string>("");
+
+  // Tabs state
   const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews">("desc");
 
   // Delivery check state
@@ -90,6 +93,15 @@ function ProductDetailPage() {
             (p) => p.category_id === current.category_id && p.id !== current.id && p.published
           );
           setRelated(relatedItems.slice(0, 4));
+
+          // Set default spec option
+          if (current.watt_capacity) {
+            setSelectedSpecOption(`${current.watt_capacity}W`);
+          } else if (current.battery_capacity) {
+            setSelectedSpecOption(current.battery_capacity);
+          } else {
+            setSelectedSpecOption("Standard");
+          }
         }
       } catch (err) {
         console.error("Failed to load product details:", err);
@@ -224,8 +236,14 @@ function ProductDetailPage() {
 
   const waUrl = `https://wa.me/919150011428?text=${encodeURIComponent(`Hi FLASH, I am interested in purchasing ${product.name} (SKU: ${product.sku}). Please let me know current stock availability.`)}`;
 
-  // Sidebar products (sample)
   const sidebarProducts = allProducts.filter(p => p.id !== product.id && p.published).slice(0, 3);
+
+  // Spec option buttons array (mocking alternate variants)
+  const specOptions = product.watt_capacity 
+    ? [`${product.watt_capacity}W`, `${(product.watt_capacity - 100)}W`, `${(product.watt_capacity + 100)}W`]
+    : product.battery_capacity
+    ? ["150Ah", "200Ah"]
+    : ["Standard", "Heavy-Duty"];
 
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
@@ -256,15 +274,17 @@ function ProductDetailPage() {
                 
                 {/* Left: Product Images Slider */}
                 <div className="md:col-span-5 space-y-4">
-                  <div className="relative aspect-square bg-slate-50 rounded-2xl overflow-hidden border border-border group">
+                  <div className="relative aspect-square bg-slate-50 rounded-2xl overflow-hidden border border-border group shadow-sm">
                     <img
                       src={images[activeImage]}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                     />
+                    
+                    {/* Premium Green Save Badge on top left of image */}
                     {product.sale_price && (
-                      <span className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
-                        Sale
+                      <span className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+                        Save ₹{saving.toLocaleString("en-IN")}
                       </span>
                     )}
                   </div>
@@ -289,35 +309,40 @@ function ProductDetailPage() {
                 <div className="md:col-span-7 space-y-6">
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-black text-brand-navy leading-tight">{product.name}</h1>
-                    <div className="flex items-center gap-1.5 mt-2">
-                      {[1, 2, 3, 4, 5].map((s) => (
-                        <Star key={s} className="h-3.5 w-3.5 fill-primary text-primary" />
-                      ))}
-                      <span className="text-xs text-slate-400 font-bold ml-1">(5.0 Customer Rating)</span>
+                    <div className="flex items-center gap-1.5 mt-2.5">
+                      <div className="flex text-amber-500">
+                        {[1, 2, 3, 4].map((s) => (
+                          <Star key={s} className="h-3.5 w-3.5 fill-current" />
+                        ))}
+                        <Star className="h-3.5 w-3.5 text-slate-300" />
+                      </div>
+                      <span className="text-xs text-slate-400 font-bold ml-1 hover:text-primary transition cursor-pointer">(1 customer review)</span>
                     </div>
                   </div>
 
-                  {/* Highlights Bullet points */}
-                  <ul className="space-y-2 text-xs text-slate-655 font-medium">
-                    <li className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">✓</span>
+                  <hr className="border-slate-100" />
+
+                  {/* Specs Bullets with thin green tick icons */}
+                  <ul className="space-y-3.5 text-xs text-slate-655 font-semibold">
+                    <li className="flex items-center gap-2.5">
+                      <span className="text-emerald-500 font-bold">✓</span>
                       <span>Authorized industrial-grade {product.brand?.name || "Premium Solar"} hardware.</span>
                     </li>
                     {product.panel_technology && (
-                      <li className="flex items-center gap-2">
-                        <span className="h-4 w-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">✓</span>
-                        <span>Panel Technology: {product.panel_technology} specs.</span>
+                      <li className="flex items-center gap-2.5">
+                        <span className="text-emerald-500 font-bold">✓</span>
+                        <span>Panel Tech specifications: {product.panel_technology}.</span>
                       </li>
                     )}
                     {product.phase && (
-                      <li className="flex items-center gap-2">
-                        <span className="h-4 w-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">✓</span>
-                        <span>Phase Config: {product.phase}.</span>
+                      <li className="flex items-center gap-2.5">
+                        <span className="text-emerald-500 font-bold">✓</span>
+                        <span>Phase configuration layout: {product.phase}.</span>
                       </li>
                     )}
-                    <li className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold">✓</span>
-                      <span>5-Year comprehensive product warranty.</span>
+                    <li className="flex items-center gap-2.5">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>5-Year comprehensive product warranty coverage.</span>
                     </li>
                   </ul>
 
@@ -328,7 +353,7 @@ function ProductDetailPage() {
                     </span>
                     {product.sale_price !== null && (
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-400 line-through text-sm font-mono">
+                        <span className="text-slate-450 line-through text-sm font-mono">
                           ₹{product.price.toLocaleString("en-IN")}
                         </span>
                         <span className="text-xs text-green-600 font-bold">Save ₹{saving.toLocaleString("en-IN")}</span>
@@ -336,66 +361,85 @@ function ProductDetailPage() {
                     )}
                   </div>
 
-                  {/* Add to Cart / Buy Now Action layout */}
-                  <div className="bg-slate-50 p-5 rounded-2xl border border-border space-y-4 shadow-sm text-slate-800">
+                  {/* Specifications Option Selector Button Strip */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Select Capacity / Specification</span>
+                    <div className="flex flex-wrap gap-2">
+                      {specOptions.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => setSelectedSpecOption(opt)}
+                          className={`px-4 py-2 text-xs font-bold rounded-xl border transition ${
+                            selectedSpecOption === opt
+                              ? "bg-slate-900 border-slate-900 text-white"
+                              : "bg-slate-50 border-slate-200 text-slate-655 hover:bg-slate-100"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Add to Cart & Buy Now Action layout - Inside premium container box */}
+                  <div className="bg-slate-100/60 p-5 rounded-2xl border border-slate-200/50 space-y-4 shadow-sm text-slate-800">
+                    
+                    {/* Qty and Add to Cart row */}
                     <div className="flex flex-col sm:flex-row items-center gap-3">
-                      {/* Qty */}
-                      <div className="flex items-center border border-border bg-white rounded-xl h-11">
+                      {/* Qty select */}
+                      <div className="flex items-center border border-slate-200 bg-white rounded-full h-11 px-2.5 shadow-xs">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="px-3 text-slate-500 hover:text-slate-800"
+                          className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition text-sm flex items-center justify-center"
                         >
                           -
                         </button>
                         <span className="px-4 font-mono font-bold text-sm text-slate-800">{quantity}</span>
                         <button
                           onClick={() => setQuantity(quantity + 1)}
-                          className="px-3 text-slate-500 hover:text-slate-800"
+                          className="w-8 h-8 rounded-full bg-slate-900 text-white hover:bg-slate-850 transition text-sm flex items-center justify-center"
                         >
                           +
                         </button>
                       </div>
 
-                      {/* Add */}
+                      {/* Add button */}
                       <button
                         onClick={handleAddToCart}
                         disabled={isOutOfStock}
-                        className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl transition disabled:opacity-50"
+                        className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-full transition disabled:opacity-50 shadow-xs"
                       >
                         <ShoppingCart className="h-4 w-4" /> Add to cart
                       </button>
                     </div>
 
-                    {/* Buy now */}
+                    {/* Buy now full-width orange button */}
                     <button
                       onClick={handleBuyNow}
                       disabled={isOutOfStock}
-                      className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl transition disabled:opacity-50"
+                      className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-full transition disabled:opacity-50 shadow-xs flex items-center justify-center gap-1.5"
                     >
-                      Buy now
+                      <ShoppingCart className="h-4 w-4" /> Buy now
                     </button>
-
-                    {/* Compare, wishlist, ask */}
-                    <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
-                      <button className="flex items-center gap-1 hover:text-primary transition">
-                        <Heart className="h-3.5 w-3.5" /> Add to wishlist
-                      </button>
-                      <button className="flex items-center gap-1 hover:text-primary transition">
-                        <CompareIcon className="h-3.5 w-3.5" /> Compare
-                      </button>
-                      <button onClick={() => setShowEnqModal(true)} className="flex items-center gap-1 hover:text-primary transition">
-                        <HelpCircle className="h-3.5 w-3.5" /> Ask about product
-                      </button>
-                    </div>
                   </div>
 
-                  {/* Coupon Notice Strip */}
-                  <div className="bg-sky-50 border border-sky-100 text-sky-700 text-xs py-3 px-4 rounded-xl font-semibold">
-                    💡 Coupon Code: Apply "FLASH1000" at cart check to get ₹1,000 flat discount!
+                  {/* Wishlist row links */}
+                  <div className="flex items-center gap-6 text-xs text-slate-500 font-semibold pt-1">
+                    <button className="flex items-center gap-1 hover:text-primary transition">
+                      <Heart className="h-3.5 w-3.5 text-slate-400" /> Add to wishlist 89
+                    </button>
+                    <button className="flex items-center gap-1 hover:text-primary transition">
+                      <CompareIcon className="h-3.5 w-3.5 text-slate-400" /> Add to compare
+                    </button>
+                    <button onClick={() => setShowEnqModal(true)} className="flex items-center gap-1 hover:text-primary transition">
+                      <HelpCircle className="h-3.5 w-3.5 text-slate-400" /> Ask about product
+                    </button>
                   </div>
+
+                  <hr className="border-slate-100" />
 
                   {/* Metadata fields */}
-                  <div className="space-y-1.5 text-xs border-t border-slate-100 pt-4 text-slate-500">
+                  <div className="space-y-1.5 text-xs text-slate-500">
                     <div>SKU: <strong className="font-mono text-slate-700">{product.sku}</strong></div>
                     <div>Category: <strong className="text-slate-700 capitalize">{product.category?.name || "Solar component"}</strong></div>
                     <div>Brand: <strong className="text-slate-700">{product.brand?.name || "FLASH"}</strong></div>
@@ -450,7 +494,7 @@ function ProductDetailPage() {
                   </button>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-border text-sm leading-relaxed text-slate-655 space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-border text-sm leading-relaxed text-slate-655 space-y-4 font-normal">
                   {activeTab === "desc" && (
                     <>
                       <p>{product.description || "No full description added. This high-efficiency solar hardware is engineered for optimal performance and grid synchronization."}</p>
@@ -460,19 +504,19 @@ function ProductDetailPage() {
 
                   {activeTab === "specs" && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
-                      <div className="flex justify-between border-b pb-1.5 text-xs">
+                      <div className="flex justify-between border-b border-dashed pb-1.5 text-xs">
                         <span className="font-semibold text-slate-500">Rated Load Capacity</span>
                         <span className="font-bold text-brand-navy">{product.watt_capacity || "—"} Watts</span>
                       </div>
-                      <div className="flex justify-between border-b pb-1.5 text-xs">
+                      <div className="flex justify-between border-b border-dashed pb-1.5 text-xs">
                         <span className="font-semibold text-slate-500">Operation Voltage</span>
                         <span className="font-bold text-brand-navy">{product.voltage || "—"}</span>
                       </div>
-                      <div className="flex justify-between border-b pb-1.5 text-xs">
+                      <div className="flex justify-between border-b border-dashed pb-1.5 text-xs">
                         <span className="font-semibold text-slate-500">Grid Phase</span>
                         <span className="font-bold text-brand-navy">{product.phase || "—"}</span>
                       </div>
-                      <div className="flex justify-between border-b pb-1.5 text-xs">
+                      <div className="flex justify-between border-b border-dashed pb-1.5 text-xs">
                         <span className="font-semibold text-slate-500">Estimated Weight</span>
                         <span className="font-bold text-brand-navy">{product.weight || "—"} kg</span>
                       </div>
@@ -489,7 +533,7 @@ function ProductDetailPage() {
               {related.length > 0 && (
                 <section className="space-y-6">
                   <h3 className="text-lg font-black text-brand-navy border-b pb-2">Related Products</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                     {related.map((item) => (
                       <div key={item.id} className="bg-white border border-border rounded-2xl p-4 flex flex-col justify-between hover:border-primary/45 transition shadow-xs group">
                         <div>
@@ -504,7 +548,7 @@ function ProductDetailPage() {
                         </div>
                         <button
                           onClick={() => addToCart({ id: item.id, name: item.name, slug: item.slug, price: item.price, sale_price: item.sale_price, images: item.images })}
-                          className="mt-4 w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-lg border transition"
+                          className="mt-4 w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-750 text-xs font-bold rounded-lg border transition"
                         >
                           Add to cart
                         </button>
@@ -544,7 +588,7 @@ function ProductDetailPage() {
                     { label: "Days", val: "72" },
                     { label: "Hrs", val: "01" },
                     { label: "Min", val: "29" },
-                    { label: "Sec", val: "44" }
+                    { label: "Sec", val: "52" }
                   ].map((t, idx) => (
                     <div key={idx} className="bg-slate-50 border border-slate-150 p-2 rounded-xl">
                       <span className="font-black text-xs block text-slate-800 font-mono">{t.val}</span>
