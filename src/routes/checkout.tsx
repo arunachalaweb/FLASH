@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { PageHero } from "@/components/site/PageHero";
-import { ShieldAlert, CreditCard, ChevronLeft, CheckCircle, Smartphone, Landmark, Check } from "lucide-react";
+import { ShieldAlert, CreditCard, ChevronLeft, CheckCircle, Smartphone, Landmark, Check, AlertCircle, ShoppingCart } from "lucide-react";
 import { getCart, clearCart, type CartItem } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -98,97 +98,108 @@ function CheckoutPage() {
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cart.length === 0) return;
+
     setLoading(true);
-
-    const token = localStorage.getItem("customer_token");
-    const isDev = import.meta.env.DEV;
-    const BACKEND_URL = isDev ? "http://localhost:4000" : "";
-
-    const payload = {
-      cart: cart.map(item => ({ id: item.id, quantity: item.quantity })),
-      shipping_name: formData.name,
-      shipping_phone: formData.phone,
-      shipping_address: formData.companyName 
-        ? `${formData.companyName} (GSTIN: ${formData.gstin}) - ${formData.address}`
-        : formData.address,
-      shipping_city: formData.city,
-      shipping_state: formData.state,
-      shipping_postal_code: formData.postalCode,
-      payment_method: formData.paymentMethod,
-      coupon_code: couponCode || undefined
-    };
-
     try {
+      const isDev = import.meta.env.DEV;
+      const BACKEND_URL = isDev ? "http://localhost:4000" : "";
+      
+      const payload = {
+        ...formData,
+        items: cart.map((i) => ({
+          productId: i.id,
+          quantity: i.quantity,
+          price: i.sale_price ?? i.price
+        })),
+        shippingFee,
+        couponCode,
+        discountAmount: couponDiscount,
+        totalAmount: grandTotal
+      };
+
+      const token = localStorage.getItem("customer_token");
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`${BACKEND_URL}/api/orders/create`, {
+      const res = await fetch(`${BACKEND_URL}/api/orders`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload)
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Order placement failed");
+      if (!res.ok) throw new Error(data.error || "Checkout failed");
 
       setOrderNum(data.order.order_number);
-      setCompleted(true);
       clearCart();
-      
       localStorage.removeItem("checkout_shipping_fee");
       localStorage.removeItem("checkout_discount");
       localStorage.removeItem("checkout_coupon_code");
-      localStorage.removeItem("checkout_pincode");
-
-      toast.success("Order secured successfully!");
+      setCompleted(true);
+      toast.success("Order placed successfully!");
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong. Please check your balance.");
+      toast.error(err.message || "Failed to process order.");
     } finally {
       setLoading(false);
     }
   };
 
-  const itemsSubtotal = cart.reduce((sum, item) => {
-    const itemPrice = item.sale_price ?? item.price;
-    return sum + (itemPrice * item.quantity);
-  }, 0);
-
-  const estimatedTax = itemsSubtotal * 0.18; 
-  const grandTotal = Math.max(0, (itemsSubtotal + estimatedTax + shippingFee) - couponDiscount);
+  // Calculations
+  const itemsSubtotal = cart.reduce((sum, item) => sum + (item.sale_price ?? item.price) * item.quantity, 0);
+  const estimatedTax = itemsSubtotal * 0.18; // 18% GST
+  const grandTotal = itemsSubtotal + estimatedTax + shippingFee - couponDiscount;
 
   if (completed) {
     return (
       <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
         <Header overlay />
-        <main className="py-20 max-w-xl mx-auto px-4 text-center space-y-6">
-          <CheckCircle className="h-20 w-20 text-primary mx-auto" />
-          <h1 className="text-3xl font-black text-brand-navy">Order Secured Successfully!</h1>
-          <p className="text-slate-550 leading-relaxed text-sm">
-            Thank you for choosing FLASH. We are preparing your high-performance solar components for logistics dispatch.
-          </p>
-          <div className="bg-white border border-border p-6 rounded-3xl text-left space-y-3 font-mono text-sm shadow-sm text-slate-800">
-            <div className="flex justify-between border-b border-dashed pb-2">
-              <span className="text-slate-500">Order Ref:</span>
-              <span className="font-bold text-slate-800">{orderNum}</span>
+        <PageHero
+          title="Order Confirmed"
+          crumb="Success"
+          tagline="Your solar power hardware deployment is booked successfully."
+        />
+
+        <main className="py-20 max-w-xl mx-auto px-4 text-center space-y-8 text-slate-800">
+          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto text-green-500 border border-green-250 shadow-sm">
+            <CheckCircle className="h-10 w-10" />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-2xl font-black text-brand-navy">Thank You For Your Order!</h2>
+            <p className="text-slate-550 text-xs">
+              Your order has been logged into our systems. A logistics executive will contact you for delivery coordination shortly.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-2 text-left font-semibold text-xs">
+            <div className="flex justify-between border-b pb-2">
+              <span className="text-slate-400">Order Reference No.</span>
+              <span className="font-mono text-slate-800 font-bold">{orderNum}</span>
             </div>
-            <div className="flex justify-between border-b border-dashed pb-2">
-              <span className="text-slate-500">Method:</span>
-              <span className="font-bold text-slate-800 uppercase">{formData.paymentMethod}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Paid Amount:</span>
-              <span className="font-bold text-primary">₹{grandTotal.toLocaleString("en-IN")}</span>
+            <div className="flex justify-between pt-2">
+              <span className="text-slate-400">Gate Payment Gateway</span>
+              <span className="uppercase text-slate-800 font-mono font-bold">{formData.paymentMethod}</span>
             </div>
           </div>
-          <div className="flex gap-4 justify-center pt-6">
-            <Link to="/products" className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-full transition border border-border">
-              Continue Shopping
+
+          <div className="flex gap-4">
+            <Link
+              to="/products"
+              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition border border-border text-xs"
+            >
+              Continue Shop
             </Link>
-            <Link to="/customer/dashboard" className="px-6 py-3 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-bold rounded-full transition shadow-lg">
-              Track in Dashboard
-            </Link>
+            {localStorage.getItem("customer_token") && (
+              <Link
+                to="/customer/dashboard"
+                className="flex-1 py-3 bg-primary text-slate-900 font-bold rounded-2xl hover:bg-primary-hover transition text-xs shadow-xs"
+              >
+                Go to Dashboard
+              </Link>
+            )}
           </div>
         </main>
         <Footer />
@@ -204,262 +215,259 @@ function CheckoutPage() {
           title="Secure Checkout"
           crumb="Checkout"
           tagline="Complete shipping coordinates and choose a payment method to dispatch your cargo."
+          compact
         />
 
         <main className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <form onSubmit={handleCheckoutSubmit} className="lg:grid lg:grid-cols-3 lg:gap-10">
+          <form onSubmit={handleCheckoutSubmit} className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
             
-            {/* Shipping Form Coordinates — styled like the dark-navy Request Free Solar Quote form */}
-            <div className="lg:col-span-2 space-y-8">
+            {/* Left 8 Columns: Shipping details and payment methods (Beautiful white cards) */}
+            <div className="lg:col-span-8 space-y-8 text-slate-800">
               
               {/* Delivery Coordinates Card */}
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-brand-navy-deep p-6 md:p-8 text-white shadow-[0_25px_60px_-25px_hsl(var(--primary)/0.4)]">
-                <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-                <div className="relative space-y-6">
-                  <div>
-                    <h3 className="font-display text-lg md:text-xl font-bold text-white uppercase tracking-wider">Delivery Coordinates</h3>
-                    <p className="text-xs text-white/60 mt-1">Recipient name, contact number, and cargo shipping address.</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">Receiver Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">Mobile Number</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        required
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
+              <div className="bg-white border border-border p-6 md:p-8 rounded-3xl shadow-sm space-y-6">
+                <div>
+                  <h3 className="text-base font-black text-brand-navy">Delivery Coordinates</h3>
+                  <p className="text-xs text-slate-500 mt-1">Recipient name, contact number, and cargo shipping address.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-white/50 uppercase">Email Address</label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                    />
-                  </div>
-
-                  {/* B2B / GST Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white/5 border border-white/10 p-4 rounded-xl">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">Company Name (Optional)</label>
-                      <input
-                        type="text"
-                        name="companyName"
-                        value={formData.companyName}
-                        onChange={handleInputChange}
-                        placeholder="Enter for B2B Invoice"
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">GSTIN (Optional)</label>
-                      <input
-                        type="text"
-                        name="gstin"
-                        value={formData.gstin}
-                        onChange={handleInputChange}
-                        placeholder="B2B Input GSTIN"
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-white/50 uppercase">Full Delivery Address</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Receiver Name</label>
                     <input
                       type="text"
-                      name="address"
+                      name="name"
                       required
-                      value={formData.address}
+                      value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
                     />
                   </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mobile Number</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
+                    />
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-1 col-span-2 sm:col-span-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">City</label>
-                      <input
-                        type="text"
-                        name="city"
-                        required
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-1 col-span-1">
-                      <label className="text-[10px] font-bold text-white/50 uppercase">State</label>
-                      <input
-                        type="text"
-                        name="state"
-                        required
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        className="w-full rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-xs text-white placeholder:text-white/45 outline-none transition focus:bg-white/10 focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-1 col-span-3 sm:col-span-1">
-                      <label className="text-[10px] font-bold text-white/40 uppercase">Postal PIN Code</label>
-                      <input
-                        type="text"
-                        name="postalCode"
-                        required
-                        disabled
-                        value={formData.postalCode}
-                        className="w-full rounded-lg bg-white/10 border border-white/10 px-3 py-2 text-xs text-white/50 font-mono"
-                      />
-                    </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
+                  />
+                </div>
+
+                {/* B2B / GST Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Company Name (Optional)</label>
+                    <input
+                      type="text"
+                      name="companyName"
+                      value={formData.companyName}
+                      onChange={handleInputChange}
+                      placeholder="Enter for B2B Invoice"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-primary"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">GSTIN (Optional)</label>
+                    <input
+                      type="text"
+                      name="gstin"
+                      value={formData.gstin}
+                      onChange={handleInputChange}
+                      placeholder="B2B Input GSTIN"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Full Delivery Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    required
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-1 col-span-2 sm:col-span-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      required
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
+                    />
+                  </div>
+                  <div className="space-y-1 col-span-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">State</label>
+                    <input
+                      type="text"
+                      name="state"
+                      required
+                      value={formData.state}
+                      onChange={handleInputChange}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none transition focus:bg-white focus:border-primary"
+                    />
+                  </div>
+                  <div className="space-y-1 col-span-3 sm:col-span-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Postal PIN Code</label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      required
+                      disabled
+                      value={formData.postalCode}
+                      className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-450 font-mono"
+                    />
                   </div>
                 </div>
               </div>
 
               {/* Payment Gateway selector card */}
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-brand-navy-deep p-6 md:p-8 text-white shadow-[0_25px_60px_-25px_hsl(var(--primary)/0.4)]">
-                <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-                <div className="relative space-y-6">
-                  <div>
-                    <h3 className="font-display text-lg md:text-xl font-bold text-white uppercase tracking-wider">Choose Payment Gateway</h3>
-                    <p className="text-xs text-white/60 mt-1">Select one of our secure payment gateways to clear your balance.</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* UPI */}
-                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${
-                      formData.paymentMethod === "upi" ? "border-primary bg-white/5" : "border-white/10 bg-white/[0.02]"
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <Smartphone className="h-5 w-5 text-primary" />
-                        <div>
-                          <span className="font-bold text-xs block text-white">UPI / QR Code</span>
-                          <span className="text-[10px] text-white/50">Instant GPay/PhonePe</span>
-                        </div>
+              <div className="bg-white border border-border p-6 md:p-8 rounded-3xl shadow-sm space-y-6">
+                <div>
+                  <h3 className="text-base font-black text-brand-navy">Choose Payment Gateway</h3>
+                  <p className="text-xs text-slate-550 mt-1">Select one of our secure payment gateways to clear your balance.</p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* UPI */}
+                  <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${
+                    formData.paymentMethod === "upi" ? "border-primary bg-slate-50" : "border-slate-100 bg-white"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <Smartphone className="h-5 w-5 text-primary" />
+                      <div>
+                        <span className="font-bold text-xs block text-slate-800">UPI / QR Code</span>
+                        <span className="text-[10px] text-slate-450">Instant GPay/PhonePe</span>
                       </div>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="upi"
-                        checked={formData.paymentMethod === "upi"}
-                        onChange={handleInputChange}
-                        className="accent-primary"
-                      />
-                    </label>
+                    </div>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="upi"
+                      checked={formData.paymentMethod === "upi"}
+                      onChange={handleInputChange}
+                      className="accent-primary"
+                    />
+                  </label>
 
-                    {/* Razorpay */}
-                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${
-                      formData.paymentMethod === "razorpay" ? "border-primary bg-white/5" : "border-white/10 bg-white/[0.02]"
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="h-5 w-5 text-primary" />
-                        <div>
-                          <span className="font-bold text-xs block text-white">Razorpay Gateway</span>
-                          <span className="text-[10px] text-white/50">Cards & Netbanking</span>
-                        </div>
+                  {/* Razorpay */}
+                  <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${
+                    formData.paymentMethod === "razorpay" ? "border-primary bg-slate-50" : "border-slate-100 bg-white"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="h-5 w-5 text-primary" />
+                      <div>
+                        <span className="font-bold text-xs block text-slate-800">Razorpay Gateway</span>
+                        <span className="text-[10px] text-slate-450">Cards & Netbanking</span>
                       </div>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="razorpay"
-                        checked={formData.paymentMethod === "razorpay"}
-                        onChange={handleInputChange}
-                        className="accent-primary"
-                      />
-                    </label>
+                    </div>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="razorpay"
+                      checked={formData.paymentMethod === "razorpay"}
+                      onChange={handleInputChange}
+                      className="accent-primary"
+                    />
+                  </label>
 
-                    {/* Bank Transfer */}
-                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${
-                      formData.paymentMethod === "bank_transfer" ? "border-primary bg-white/5" : "border-white/10 bg-white/[0.02]"
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <Landmark className="h-5 w-5 text-primary" />
-                        <div>
-                          <span className="font-bold text-xs block text-white">Bank Transfer (NEFT)</span>
-                          <span className="text-[10px] text-white/50">B2B Proforma Invoices</span>
-                        </div>
+                  {/* Bank Transfer */}
+                  <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${
+                    formData.paymentMethod === "bank_transfer" ? "border-primary bg-slate-50" : "border-slate-100 bg-white"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <Landmark className="h-5 w-5 text-primary" />
+                      <div>
+                        <span className="font-bold text-xs block text-slate-800">Bank Transfer (NEFT)</span>
+                        <span className="text-[10px] text-slate-450">B2B Proforma Invoices</span>
                       </div>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="bank_transfer"
-                        checked={formData.paymentMethod === "bank_transfer"}
-                        onChange={handleInputChange}
-                        className="accent-primary"
-                      />
-                    </label>
+                    </div>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="bank_transfer"
+                      checked={formData.paymentMethod === "bank_transfer"}
+                      onChange={handleInputChange}
+                      className="accent-primary"
+                    />
+                  </label>
 
-                    {/* COD */}
-                    <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition ${
-                      formData.paymentMethod === "cod" ? "border-primary bg-white/5" : "border-white/10 bg-white/[0.02]"
-                    }`}>
-                      <div className="flex items-center gap-3">
-                        <ShieldAlert className="h-5 w-5 text-primary" />
-                        <div>
-                          <span className="font-bold text-xs block text-white">Cash on Delivery</span>
-                          <span className="text-[10px] text-white/50">Pay at unloading point</span>
-                        </div>
+                  {/* COD */}
+                  <label className={`flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition ${
+                    formData.paymentMethod === "cod" ? "border-primary bg-slate-50" : "border-slate-100 bg-white"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <ShieldAlert className="h-5 w-5 text-primary" />
+                      <div>
+                        <span className="font-bold text-xs block text-slate-800">Cash on Delivery</span>
+                        <span className="text-[10px] text-slate-450">Pay at unloading point</span>
                       </div>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="cod"
-                        checked={formData.paymentMethod === "cod"}
-                        onChange={handleInputChange}
-                        className="accent-primary"
-                      />
-                    </label>
-                  </div>
+                    </div>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={formData.paymentMethod === "cod"}
+                      onChange={handleInputChange}
+                      className="accent-primary"
+                    />
+                  </label>
                 </div>
               </div>
             </div>
 
-            {/* Right Summary Checkout Panel */}
-            <div className="space-y-6">
+            {/* Right 4 Columns: Summary Checkout Panel */}
+            <div className="lg:col-span-4 space-y-6">
               <div className="bg-white rounded-3xl p-6 border border-border space-y-6 shadow-sm text-slate-800">
-                <h3 className="font-black text-lg border-b border-slate-100 pb-3 text-brand-navy">Checkout Totals</h3>
+                <h3 className="font-black text-sm border-b border-slate-100 pb-3 text-brand-navy flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4 text-primary" /> Order Summary
+                </h3>
                 
                 <div className="max-h-60 overflow-y-auto space-y-3.5 pr-1">
                   {cart.map((item) => (
                     <div key={item.id} className="flex justify-between text-xs text-slate-655">
                       <span className="line-clamp-1">{item.name} × {item.quantity}</span>
-                      <span className="font-mono">₹{((item.sale_price ?? item.price) * item.quantity).toLocaleString("en-IN")}</span>
+                      <span className="font-mono font-bold">₹{((item.sale_price ?? item.price) * item.quantity).toLocaleString("en-IN")}</span>
                     </div>
                   ))}
                 </div>
 
                 <hr className="border-slate-100" />
 
-                <div className="space-y-3.5 text-xs text-slate-655">
+                <div className="space-y-3 text-xs text-slate-500 font-semibold">
                   <div className="flex justify-between">
                     <span>Goods Subtotal</span>
-                    <span className="font-mono">₹{itemsSubtotal.toLocaleString("en-IN")}</span>
+                    <span className="font-mono text-slate-800">₹{itemsSubtotal.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>CGST & SGST (18%)</span>
-                    <span className="font-mono">₹{estimatedTax.toLocaleString("en-IN")}</span>
+                    <span className="font-mono text-slate-800">₹{estimatedTax.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Logistics Shipping</span>
-                    <span className="font-mono">₹{shippingFee.toLocaleString("en-IN")}</span>
+                    <span className="font-mono text-slate-800">₹{shippingFee.toLocaleString("en-IN")}</span>
                   </div>
                   {couponDiscount > 0 && (
                     <div className="flex justify-between text-green-600 font-bold">
@@ -468,22 +476,22 @@ function CheckoutPage() {
                     </div>
                   )}
                   <hr className="border-slate-100" />
-                  <div className="flex justify-between text-slate-800 font-black text-base">
+                  <div className="flex justify-between text-slate-850 font-black text-sm">
                     <span>Grand Total</span>
-                    <span className="font-mono text-primary">₹{grandTotal.toLocaleString("en-IN")}</span>
+                    <span className="font-mono text-primary text-base">₹{grandTotal.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl shadow-lg transition hover:shadow-xl disabled:opacity-50"
+                  className="w-full py-3.5 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl shadow-md hover:shadow-lg transition hover:-translate-y-0.5 disabled:opacity-50 text-xs"
                 >
-                  {loading ? "Processing..." : "Place Secure Order"}
+                  {loading ? "Processing Order..." : "Place Secure Order"}
                 </button>
               </div>
               
-              <Link to="/cart" className="inline-flex items-center gap-2 text-xs text-slate-550 hover:text-primary transition font-bold px-2">
+              <Link to="/cart" className="inline-flex items-center gap-1.5 text-xs text-slate-550 hover:text-primary transition font-bold px-2">
                 <ChevronLeft className="h-4 w-4" /> Return to Cart
               </Link>
             </div>
