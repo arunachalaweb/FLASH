@@ -68,6 +68,13 @@ const staffSections: Section[] = [
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard }],
   },
   {
+    title: "Assigned Leads",
+    items: [
+      { to: "/admin/enquiries/contact", label: "Contact Messages", icon: Mail },
+      { to: "/admin/enquiries/quotes", label: "Quote Requests", icon: FileText },
+    ],
+  },
+  {
     title: "Messaging",
     items: [{ to: "/admin/messages", label: "Internal Messaging", icon: MessageSquareQuote }],
   },

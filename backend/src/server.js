@@ -118,7 +118,7 @@ async function initializeDatabase() {
 initializeDatabase().catch(console.error);
 
 // Authentication middleware
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "No token provided" });
@@ -129,7 +129,28 @@ function requireAuth(req, res, next) {
   if (!isValidAdmin && !isValidStaff) {
     return res.status(401).json({ error: "Invalid token" });
   }
-  next();
+  
+  if (isValidAdmin) {
+    req.user = { id: "admin", role: "admin" };
+    return next();
+  }
+
+  if (isValidStaff) {
+    const staffId = token.replace("staff-token-", "");
+    try {
+      const staff = await prisma.teamMember.findUnique({ where: { id: staffId } });
+      if (!staff) {
+        return res.status(401).json({ error: "Staff member not found" });
+      }
+      if (staff.active === false || staff.active === "false" || staff.active === 0) {
+        return res.status(401).json({ error: "Account is suspended." });
+      }
+      req.user = { id: staff.id, role: staff.system_role || "staff" };
+      return next();
+    } catch (e) {
+      return res.status(500).json({ error: "Session verification failed: " + e.message });
+    }
+  }
 }
 
 // Login endpoint
@@ -165,7 +186,7 @@ app.post("/api/login", async (req, res) => {
         return res.json({
           token: "staff-token-" + staff.id,
           username: staff.name,
-          role: "staff",
+          role: staff.system_role || "staff",
           id: staff.id,
         });
       }
@@ -474,7 +495,22 @@ app.get("/api/:table", async (req, res) => {
   const model = modelFor(table);
   if (!model) return res.status(404).json({ error: "Unknown table" });
   try {
-    const rows = await model.findMany({ orderBy: { created_at: "desc" } });
+    let filter = {};
+    if (req.user && req.user.role === "staff") {
+      if (table === "contact_enquiries" || table === "quote_requests") {
+        filter = { assigned_staff_id: req.user.id };
+      } else if (
+        table === "page_content" ||
+        table === "hero_slides" ||
+        table === "system_settings" ||
+        table === "team_members" ||
+        table === "admin_users"
+      ) {
+        return res.status(403).json({ error: "Access Denied: Standard staff cannot view this content." });
+      }
+    }
+
+    const rows = await model.findMany({ where: filter, orderBy: { created_at: "desc" } });
     const deserialized = rows.map(deserializeRow);
     res.json(deserialized);
   } catch (e) {
@@ -487,6 +523,11 @@ app.post("/api/:table", async (req, res) => {
   const table = req.params.table;
   const model = modelFor(table);
   if (!model) return res.status(404).json({ error: "Unknown table" });
+  if (req.user && req.user.role === "staff") {
+    if (table !== "contact_enquiries" && table !== "quote_requests" && table !== "staff_messages") {
+      return res.status(403).json({ error: "Access Denied: Staff cannot create records here." });
+    }
+  }
   try {
     const serialized = serializeBody(req.body);
     if ((table === "admin_users" || table === "team_members") && serialized.password) {
@@ -604,6 +645,14 @@ app.put("/api/:table/:id", async (req, res) => {
   const id = req.params.id;
   const model = modelFor(table);
   if (!model) return res.status(404).json({ error: "Unknown table" });
+  if (req.user && req.user.role === "staff") {
+    if (table !== "contact_enquiries" && table !== "quote_requests" && table !== "staff_messages" && table !== "team_members") {
+      return res.status(403).json({ error: "Access Denied: Staff cannot edit records here." });
+    }
+    if (table === "team_members" && id !== req.user.id) {
+      return res.status(403).json({ error: "Access Denied: Staff can only edit their own profile." });
+    }
+  }
   try {
     const serialized = serializeBody(req.body);
     if ((table === "admin_users" || table === "team_members") && serialized.password) {
@@ -656,6 +705,9 @@ app.delete("/api/:table/:id", async (req, res) => {
   const id = req.params.id;
   const model = modelFor(table);
   if (!model) return res.status(404).json({ error: "Unknown table" });
+  if (req.user && req.user.role === "staff") {
+    return res.status(403).json({ error: "Access Denied: Staff cannot delete records." });
+  }
   try {
     await model.delete({ where: { id } });
     res.json({ ok: true });

@@ -107,6 +107,7 @@ model TeamMember {
   id           String   @id @default(uuid())
   name         String
   role         String?
+  system_role  String   @default("staff")
   email        String?
   phone        String?
   linkedin_url String?
