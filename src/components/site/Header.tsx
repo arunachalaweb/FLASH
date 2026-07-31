@@ -178,16 +178,7 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="flex items-center gap-2 text-xs font-medium">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors"
-                >
-                  <LogIn className="h-3.5 w-3.5" /> Admin Login
-                </Link>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -356,15 +347,7 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
                     <LogOut className="h-4 w-4 text-primary" /> Sign out Admin ({adminUser})
                   </button>
                 </>
-              ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-white/10 transition"
-                >
-                  <LogIn className="h-4 w-4 text-primary" /> Admin Login
-                </Link>
-              )}
+              ) : null}
             </div>
           </div>
           <div className="mt-auto pt-6 text-xs text-white/60 space-y-2">
