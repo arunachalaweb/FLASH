@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { PageHero } from "@/components/site/PageHero";
-import { Search, Filter, ShoppingCart, SlidersHorizontal, ArrowUpDown, ChevronRight, Check, Grid, List, Zap, Layers, Sparkles } from "lucide-react";
+import { Search, Filter, ShoppingCart, SlidersHorizontal, ArrowUpDown, ChevronRight, Check, Grid, List, Zap, Layers, Sparkles, X } from "lucide-react";
 import { addToCart } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -72,6 +72,10 @@ function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
 
+  // Added to cart modal
+  const [showAddedModal, setShowAddedModal] = useState(false);
+  const [lastAddedProduct, setLastAddedProduct] = useState<Product | null>(null);
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -111,7 +115,8 @@ function ProductsPage() {
     });
     
     setAddedItems((prev) => ({ ...prev, [product.id]: true }));
-    toast.success(`Added ${product.name} to cart!`);
+    setLastAddedProduct(product);
+    setShowAddedModal(true);
     
     setTimeout(() => {
       setAddedItems((prev) => ({ ...prev, [product.id]: false }));
@@ -382,7 +387,7 @@ function ProductsPage() {
 
                     return (
                       <div key={p.id} className="bg-white rounded-3xl border border-border overflow-hidden hover:border-primary/50 transition group flex flex-col h-full shadow-[0_10px_35px_-15px_hsl(var(--brand-navy)/0.12)]">
-                        <Link to={`/products/${p.slug}`} className="relative block overflow-hidden aspect-video bg-slate-950">
+                        <Link to="/products/$slug" params={{ slug: p.slug }} className="relative block overflow-hidden aspect-video bg-slate-950">
                           <img
                             src={getProductImage(p.images)}
                             alt={p.name}
@@ -406,7 +411,7 @@ function ProductsPage() {
                               {p.category?.name || "Solar Component"}
                             </span>
                             <h4 className="font-bold text-sm text-slate-800 group-hover:text-primary transition mt-1 line-clamp-2 min-h-[40px]">
-                              <Link to={`/products/${p.slug}`}>{p.name}</Link>
+                              <Link to="/products/$slug" params={{ slug: p.slug }}>{p.name}</Link>
                             </h4>
                             <span className="text-[10px] font-mono text-slate-400 block mt-1">SKU: {p.sku}</span>
                           </div>
@@ -451,7 +456,7 @@ function ProductsPage() {
 
                     return (
                       <div key={p.id} className="bg-white rounded-3xl border border-border p-4 hover:border-primary/50 transition flex gap-5 items-center shadow-[0_10px_35px_-15px_hsl(var(--brand-navy)/0.12)]">
-                        <Link to={`/products/${p.slug}`} className="w-24 sm:w-36 aspect-video rounded-xl overflow-hidden bg-slate-950 relative flex-shrink-0">
+                        <Link to="/products/$slug" params={{ slug: p.slug }} className="w-24 sm:w-36 aspect-video rounded-xl overflow-hidden bg-slate-950 relative flex-shrink-0">
                           <img
                             src={getProductImage(p.images)}
                             alt={p.name}
@@ -469,13 +474,13 @@ function ProductsPage() {
                             {p.category?.name}
                           </span>
                           <h4 className="font-bold text-sm sm:text-base text-slate-800 hover:text-primary transition mt-0.5 truncate">
-                            <Link to={`/products/${p.slug}`}>{p.name}</Link>
+                            <Link to="/products/$slug" params={{ slug: p.slug }}>{p.name}</Link>
                           </h4>
-                          <p className="text-slate-500 text-xs line-clamp-2 mt-1 hidden sm:block">{p.description}</p>
+                          <p className="text-slate-550 text-xs line-clamp-2 mt-1 hidden sm:block">{p.description}</p>
                           <div className="flex items-center gap-3 mt-2">
                             <span className="text-[10px] font-mono text-slate-400">SKU: {p.sku}</span>
                             {p.watt_capacity && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] bg-slate-50 px-2 py-0.5 rounded text-slate-650">
+                              <span className="inline-flex items-center gap-0.5 text-[9px] bg-slate-50 px-2 py-0.5 rounded text-slate-655">
                                 {p.watt_capacity}W
                               </span>
                             )}
@@ -510,6 +515,43 @@ function ProductsPage() {
           </div>
         </section>
       </div>
+
+      {/* Added to Cart Popup Modal */}
+      {showAddedModal && lastAddedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-border rounded-3xl p-6 md:p-8 max-w-sm w-full space-y-6 relative text-slate-850 shadow-2xl text-center">
+            <button
+              onClick={() => setShowAddedModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto text-green-500 border border-green-200">
+              <Check className="h-8 w-8" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-brand-navy">Product Added to Cart!</h3>
+              <p className="text-slate-500 text-xs mt-2 font-semibold">{lastAddedProduct.name}</p>
+            </div>
+
+            <div className="flex flex-col gap-3.5 pt-2">
+              <Link
+                to="/cart"
+                onClick={() => setShowAddedModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl shadow-md hover:shadow-lg transition text-sm"
+              >
+                View Cart & Checkout
+              </Link>
+              <button
+                onClick={() => setShowAddedModal(false)}
+                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-655 font-bold rounded-2xl transition border border-border text-sm"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

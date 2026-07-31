@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { PageHero } from "@/components/site/PageHero";
-import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RefreshCw, Check, AlertCircle, FileText, Share2, HelpCircle, PhoneCall, PenSquare } from "lucide-react";
+import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RefreshCw, Check, AlertCircle, FileText, Share2, HelpCircle, PhoneCall, PenSquare, X } from "lucide-react";
 import { addToCart } from "@/lib/cart";
 import { toast } from "sonner";
 
@@ -67,6 +67,9 @@ function ProductDetailPage() {
   const [enqMessage, setEnqMessage] = useState("");
   const [sendingEnq, setSendingEnq] = useState(false);
 
+  // Added to cart modal
+  const [showAddedModal, setShowAddedModal] = useState(false);
+
   useEffect(() => {
     async function loadProduct() {
       try {
@@ -104,12 +107,14 @@ function ProductDetailPage() {
     }, quantity);
     
     setAdded(true);
+    setShowAddedModal(true);
     toast.success(`Added ${quantity} × ${product.name} to cart!`);
     setTimeout(() => setAdded(false), 2000);
   };
 
   const handleBuyNow = () => {
     handleAddToCart();
+    setShowAddedModal(false);
     navigate({ to: "/cart" });
   };
 
@@ -446,7 +451,8 @@ function ProductDetailPage() {
                 {related.map((item) => (
                   <Link
                     key={item.id}
-                    to={`/products/${item.slug}`}
+                    to="/products/$slug"
+                    params={{ slug: item.slug }}
                     className="bg-white border border-border rounded-2xl p-4 block hover:border-primary/50 transition group shadow-sm"
                   >
                     <div className="aspect-video rounded-xl overflow-hidden bg-slate-950">
@@ -533,6 +539,43 @@ function ProductDetailPage() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Added to Cart Popup Modal */}
+      {showAddedModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-border rounded-3xl p-6 md:p-8 max-w-sm w-full space-y-6 relative text-slate-850 shadow-2xl text-center">
+            <button
+              onClick={() => setShowAddedModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto text-green-500 border border-green-200">
+              <Check className="h-8 w-8" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-brand-navy">Product Added to Cart!</h3>
+              <p className="text-slate-550 text-xs mt-2 font-semibold">{product.name}</p>
+            </div>
+
+            <div className="flex flex-col gap-3.5 pt-2">
+              <Link
+                to="/cart"
+                onClick={() => setShowAddedModal(false)}
+                className="w-full py-3 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl shadow-md hover:shadow-lg transition text-sm"
+              >
+                View Cart & Checkout
+              </Link>
+              <button
+                onClick={() => setShowAddedModal(false)}
+                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-655 font-bold rounded-2xl transition border border-border text-sm"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
