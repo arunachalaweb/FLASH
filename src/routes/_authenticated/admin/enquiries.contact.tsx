@@ -1,9 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { AdminCrud } from "@/components/admin/AdminCrud";
 
-export const Route = createFileRoute("/_authenticated/admin/enquiries/contact")({
-  head: () => ({ meta: [{ title: "Contact Messages | Flash Admin" }] }),
-  component: () => (
+function ContactEnquiriesPage() {
+  const [staffOptions, setStaffOptions] = useState<{ value: string; label: string }[]>([]);
+  const [staffMap, setStaffMap] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+    const isDev = import.meta.env.DEV;
+    const BACKEND_URL = isDev ? "http://localhost:4000" : "";
+    fetch(`${BACKEND_URL}/api/team_members`, {
+      headers: {
+        ...(token ? { authorization: `Bearer ${token}` } : {})
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setStaffOptions([
+            { value: "", label: "Unassigned / Admin" },
+            ...data.map((m: any) => ({ value: m.id, label: `${m.name} (${m.role})` }))
+          ]);
+          const map: Record<string, string> = {};
+          data.forEach((m: any) => { map[m.id] = m.name; });
+          setStaffMap(map);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  return (
     <AdminCrud
       table="contact_enquiries"
       title="Contact Messages"
@@ -16,6 +43,14 @@ export const Route = createFileRoute("/_authenticated/admin/enquiries/contact")(
         { key: "phone", label: "Phone" },
         { key: "subject", label: "Service Interested In" },
         { key: "status", label: "Status" },
+        {
+          key: "assigned_staff_id",
+          label: "Assigned To",
+          render: (r) => {
+            const sid = r.assigned_staff_id as string;
+            return sid ? staffMap[sid] || "Staff" : "Admin";
+          }
+        },
         {
           key: "created_at",
           label: "Received",
@@ -52,8 +87,19 @@ export const Route = createFileRoute("/_authenticated/admin/enquiries/contact")(
             { value: "archived", label: "Archived" },
           ],
         },
+        {
+          key: "assigned_staff_id",
+          label: "Assign/Forward to Staff",
+          type: "select",
+          options: staffOptions
+        },
         { key: "admin_notes", label: "Admin notes", type: "textarea" },
       ]}
     />
-  ),
+  );
+}
+
+export const Route = createFileRoute("/_authenticated/admin/enquiries/contact")({
+  head: () => ({ meta: [{ title: "Contact Messages | Flash Admin" }] }),
+  component: ContactEnquiriesPage
 });

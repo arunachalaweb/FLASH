@@ -178,6 +178,68 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Forward Enquiry/Quote to internal Staff member
+app.post("/api/enquiries/forward", requireAuth, async (req, res) => {
+  try {
+    const { type, id, staffId } = req.body;
+    if (!type || !id) {
+      return res.status(400).json({ error: "Missing type or id" });
+    }
+
+    // Handled unassigning if staffId is empty/null/undefined
+    const targetStaffId = staffId || null;
+    let staffName = "Unassigned";
+
+    if (targetStaffId) {
+      const staff = await prisma.teamMember.findUnique({ where: { id: targetStaffId } });
+      if (!staff) {
+        return res.status(404).json({ error: "Staff member not found" });
+      }
+      staffName = staff.name;
+    }
+
+    let enquiryDetails = "";
+    if (type === "contact") {
+      const enquiry = await prisma.contactEnquiry.findUnique({ where: { id } });
+      if (!enquiry) return res.status(404).json({ error: "Contact Enquiry not found" });
+      
+      await prisma.contactEnquiry.update({
+        where: { id },
+        data: { assigned_staff_id: targetStaffId }
+      });
+      enquiryDetails = `Contact Enquiry from ${enquiry.name} (${enquiry.email}): ${enquiry.message}`;
+    } else if (type === "quote") {
+      const quote = await prisma.quoteRequest.findUnique({ where: { id } });
+      if (!quote) return res.status(404).json({ error: "Quote Request not found" });
+
+      await prisma.quoteRequest.update({
+        where: { id },
+        data: { assigned_staff_id: targetStaffId }
+      });
+      enquiryDetails = `Quote Request from ${quote.name} (${quote.email}): ${quote.message || "Requesting solar system installation"}`;
+    } else {
+      return res.status(400).json({ error: "Invalid type: must be 'contact' or 'quote'" });
+    }
+
+    // Only create a message if a staff member was actually assigned
+    if (targetStaffId) {
+      await prisma.staffMessage.create({
+        data: {
+          sender_role: "admin",
+          sender_name: "System Admin",
+          recipient_id: targetStaffId,
+          message: `FORWARDED TASK: ${enquiryDetails}`,
+        }
+      });
+    }
+
+    res.json({ success: true, message: `Successfully assigned/forwarded to ${staffName}` });
+  } catch (error) {
+    console.error("Forwarding Error:", error);
+    res.status(500).json({ error: "Failed to forward enquiry: " + error.message });
+  }
+});
+
 // Helper: map table param to prisma model actions
 function modelFor(table) {
   switch (table) {
@@ -549,7 +611,39 @@ app.put("/api/:table/:id", async (req, res) => {
          serialized.password = await bcrypt.hash(serialized.password, 10);
        }
     }
+
+    // Capture previous state to check for new staff assignments
+    let previousRecord = null;
+    if (table === "contact_enquiries" || table === "quote_requests") {
+      previousRecord = await model.findUnique({ where: { id } });
+    }
+
     const updated = await model.update({ where: { id }, data: serialized });
+
+    // Send notifications if staff assignment changes
+    if (previousRecord && serialized.assigned_staff_id !== undefined && serialized.assigned_staff_id !== previousRecord.assigned_staff_id) {
+      const targetStaffId = serialized.assigned_staff_id;
+      if (targetStaffId) {
+        const staff = await prisma.teamMember.findUnique({ where: { id: targetStaffId } });
+        if (staff) {
+          let enquiryDetails = "";
+          if (table === "contact_enquiries") {
+            enquiryDetails = `Contact Enquiry from ${updated.name} (${updated.email}): ${updated.message}`;
+          } else {
+            enquiryDetails = `Quote Request from ${updated.name} (${updated.email}): ${updated.message || "Requesting solar system installation"}`;
+          }
+          await prisma.staffMessage.create({
+            data: {
+              sender_role: "admin",
+              sender_name: "System Admin",
+              recipient_id: targetStaffId,
+              message: `FORWARDED TASK: ${enquiryDetails}`,
+            }
+          });
+        }
+      }
+    }
+
     res.json(deserializeRow(updated));
   } catch (e) {
     console.error(e);

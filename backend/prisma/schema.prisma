@@ -15,9 +15,10 @@ model ContactEnquiry {
   subject     String?
   message     String
   status      String   @default("new")
-  admin_notes String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime? @updatedAt
+  admin_notes       String?
+  assigned_staff_id String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime? @updatedAt
 }
 
 model NewsletterSubscriber {
@@ -40,9 +41,10 @@ model QuoteRequest {
   property_type String?
   service_type  String?
   status        String   @default("new")
-  admin_notes   String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime? @updatedAt
+  admin_notes       String?
+  assigned_staff_id String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime? @updatedAt
 }
 
 model AdminUser {
