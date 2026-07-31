@@ -183,7 +183,7 @@ function ProductsPage() {
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
       <div>
-        <Header />
+        <Header overlay />
         <PageHero
           title={activeTab === "hardware" ? "Solar Hardware Shop" : "Complete Solar Packages"}
           crumb="Products"
