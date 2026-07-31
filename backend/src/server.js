@@ -43,8 +43,11 @@ app.post("/api/upload", requireAuth, upload.single("file"), (req, res) => {
   res.json({ url: `/uploads/${req.file.filename}` });
 });
 
-// Create default admin user if not exists
-async function createDefaultAdmin() {
+
+
+// Create default admin user and seed CMS if not exists
+async function initializeDatabase() {
+  // 1. Create admin user
   const admin = await prisma.adminUser.findFirst({ where: { username: "admin" } });
   if (!admin) {
     const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -53,8 +56,66 @@ async function createDefaultAdmin() {
     });
     console.log("Created default admin user: admin / admin123");
   }
+
+  // 2. Seed Hero Slides if empty
+  const slidesCount = await prisma.heroSlide.count();
+  if (slidesCount === 0) {
+    const defaultSlides = [
+      {
+        title: "Smart Solar Solutions",
+        subtitle: "Innovative, sustainable, and reliable end-to-end renewable energy solutions for homes, businesses, and industries.",
+        image_url: "/assets/hero-1-BkzO-lr0.jpg",
+        button_text: "Get a Quote",
+        button_link: "/quote",
+        sort_order: 1
+      },
+      {
+        title: "End-to-End Solar EPC",
+        subtitle: "Rooftop, ground-mounted, commercial, and utility-scale solar installations customized for your energy needs.",
+        image_url: "/assets/hero-2-BYbGfj6d.jpg",
+        button_text: "Our Services",
+        button_link: "/services",
+        sort_order: 2
+      },
+      {
+        title: "Scale Your Power Savings",
+        subtitle: "Join over 500+ satisfied clients cutting their electricity bills with high-efficiency PV technology.",
+        image_url: "/assets/hero-3-wqFfPd7k.jpg",
+        button_text: "Explore Projects",
+        button_link: "/projects",
+        sort_order: 3
+      }
+    ];
+    for (const slide of defaultSlides) {
+      await prisma.heroSlide.create({ data: slide });
+    }
+    console.log("Seeded default hero slides.");
+  }
+
+  // 3. Seed PageContent sections if empty
+  const contentCount = await prisma.pageContent.count();
+  if (contentCount === 0) {
+    const defaultSections = [
+      {
+        page_slug: "home",
+        section_key: "about_title",
+        title: "Leading Solar EPC & Maintenance Provider in India",
+        body: "Flash Renewable Energy Solutions is one of the fastest-growing solar energy developers, delivering high-performance solar power plants across commercial, residential, and industrial sectors."
+      },
+      {
+        page_slug: "home",
+        section_key: "about_description",
+        title: "Empowering a Sustainable Future",
+        body: "From planning and design to installation and 24x7 operation & maintenance, we handle everything locally to ensure maximum output and zero hassle for our customers."
+      }
+    ];
+    for (const section of defaultSections) {
+      await prisma.pageContent.create({ data: section });
+    }
+    console.log("Seeded default page content sections.");
+  }
 }
-createDefaultAdmin().catch(console.error);
+initializeDatabase().catch(console.error);
 
 // Authentication middleware
 function requireAuth(req, res, next) {
@@ -146,6 +207,8 @@ function modelFor(table) {
       return prisma.systemSetting;
     case "staff_messages":
       return prisma.staffMessage;
+    case "hero_slides":
+      return prisma.heroSlide;
     default:
       return null;
   }

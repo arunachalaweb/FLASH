@@ -188,3 +188,17 @@ model StaffMessage {
   message      String
   created_at   DateTime @default(now())
 }
+
+model HeroSlide {
+  id          String   @id @default(uuid())
+  page_slug   String   @default("home")
+  title       String?
+  subtitle    String?
+  image_url   String
+  button_text String?
+  button_link String?
+  sort_order  Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime? @updatedAt
+}
+

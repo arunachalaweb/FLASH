@@ -31,6 +31,7 @@ import { Route as AuthenticatedAdminCmsFaqsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCmsPagesRouteImport } from './routes/_authenticated/admin/cms.pages'
 import { Route as AuthenticatedAdminCmsProjectsRouteImport } from './routes/_authenticated/admin/cms.projects'
 import { Route as AuthenticatedAdminCmsServicesRouteImport } from './routes/_authenticated/admin/cms.services'
+import { Route as AuthenticatedAdminCmsSlidesRouteImport } from './routes/_authenticated/admin/cms.slides'
 import { Route as AuthenticatedAdminCmsTestimonialsRouteImport } from './routes/_authenticated/admin/cms.testimonials'
 import { Route as AuthenticatedAdminEnquiriesContactRouteImport } from './routes/_authenticated/admin/enquiries.contact'
 import { Route as AuthenticatedAdminEnquiriesQuotesRouteImport } from './routes/_authenticated/admin/enquiries.quotes'
@@ -151,6 +152,12 @@ const AuthenticatedAdminCmsServicesRoute =
     path: '/cms/services',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCmsSlidesRoute =
+  AuthenticatedAdminCmsSlidesRouteImport.update({
+    id: '/cms/slides',
+    path: '/cms/slides',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCmsTestimonialsRoute =
   AuthenticatedAdminCmsTestimonialsRouteImport.update({
     id: '/cms/testimonials',
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
   '/admin/cms/projects': typeof AuthenticatedAdminCmsProjectsRoute
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
+  '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
@@ -224,6 +232,7 @@ export interface FileRoutesByTo {
   '/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
   '/admin/cms/projects': typeof AuthenticatedAdminCmsProjectsRoute
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
+  '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
@@ -253,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms/pages': typeof AuthenticatedAdminCmsPagesRoute
   '/_authenticated/admin/cms/projects': typeof AuthenticatedAdminCmsProjectsRoute
   '/_authenticated/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
+  '/_authenticated/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/_authenticated/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/_authenticated/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/_authenticated/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin/cms/pages'
     | '/admin/cms/projects'
     | '/admin/cms/services'
+    | '/admin/cms/slides'
     | '/admin/cms/testimonials'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/quotes'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/cms/pages'
     | '/admin/cms/projects'
     | '/admin/cms/services'
+    | '/admin/cms/slides'
     | '/admin/cms/testimonials'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/quotes'
@@ -336,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cms/pages'
     | '/_authenticated/admin/cms/projects'
     | '/_authenticated/admin/cms/services'
+    | '/_authenticated/admin/cms/slides'
     | '/_authenticated/admin/cms/testimonials'
     | '/_authenticated/admin/enquiries/contact'
     | '/_authenticated/admin/enquiries/quotes'
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCmsServicesRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/cms/slides': {
+      id: '/_authenticated/admin/cms/slides'
+      path: '/cms/slides'
+      fullPath: '/admin/cms/slides'
+      preLoaderRoute: typeof AuthenticatedAdminCmsSlidesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/cms/testimonials': {
       id: '/_authenticated/admin/cms/testimonials'
       path: '/cms/testimonials'
@@ -554,6 +574,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCmsPagesRoute: typeof AuthenticatedAdminCmsPagesRoute
   AuthenticatedAdminCmsProjectsRoute: typeof AuthenticatedAdminCmsProjectsRoute
   AuthenticatedAdminCmsServicesRoute: typeof AuthenticatedAdminCmsServicesRoute
+  AuthenticatedAdminCmsSlidesRoute: typeof AuthenticatedAdminCmsSlidesRoute
   AuthenticatedAdminCmsTestimonialsRoute: typeof AuthenticatedAdminCmsTestimonialsRoute
   AuthenticatedAdminEnquiriesContactRoute: typeof AuthenticatedAdminEnquiriesContactRoute
   AuthenticatedAdminEnquiriesQuotesRoute: typeof AuthenticatedAdminEnquiriesQuotesRoute
@@ -571,6 +592,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCmsPagesRoute: AuthenticatedAdminCmsPagesRoute,
     AuthenticatedAdminCmsProjectsRoute: AuthenticatedAdminCmsProjectsRoute,
     AuthenticatedAdminCmsServicesRoute: AuthenticatedAdminCmsServicesRoute,
+    AuthenticatedAdminCmsSlidesRoute: AuthenticatedAdminCmsSlidesRoute,
     AuthenticatedAdminCmsTestimonialsRoute:
       AuthenticatedAdminCmsTestimonialsRoute,
     AuthenticatedAdminEnquiriesContactRoute:

@@ -29,6 +29,7 @@ import { ProjectsGallery } from "@/components/site/ProjectsGallery";
 import { Testimonials } from "@/components/site/Testimonials";
 import { ContactForm } from "@/components/site/ContactForm";
 import { services } from "@/lib/services-data";
+import { useCMS } from "@/hooks/useCMS";
 import flash1 from "@/assets/flash-1.png";
 import hero2 from "@/assets/hero-2.jpg";
 import hero3 from "@/assets/hero-3.jpg";
@@ -143,24 +144,39 @@ const whyus = [
   "Warranty & AMC Services",
 ];
 
-function HeroSection() {
+function HeroSection({ dbSlides }: { dbSlides: any[] }) {
   const [active, setActive] = useState(0);
   const [billAmount, setBillAmount] = useState<string>("");
   const [calcResult, setCalcResult] = useState<{ size: number; cost: number; savings: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const activeSlides = dbSlides && dbSlides.length > 0 ? dbSlides.map(s => {
+    const isDev = import.meta.env.DEV;
+    const BACKEND_URL = isDev ? "http://localhost:4000" : "";
+    const imgUrl = s.image_url.startsWith("/") ? `${BACKEND_URL}${s.image_url}` : s.image_url;
+    return {
+      img: imgUrl,
+      tag: s.title || "Powering a Bright & Green Future",
+      headline: s.subtitle ? [s.subtitle] : ["Clean Energy,", "Engineered for", "India's Future."],
+      accent: s.title || "",
+      sub: s.subtitle || "Delivering innovative solar, wind, and clean energy solutions.",
+      cta: s.button_text || "Get Free Consultation",
+      ctaHref: s.button_link || "#contact",
+    };
+  }) : heroSlides;
+
   const startTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => setActive((a) => (a + 1) % heroSlides.length), 6000);
+    timerRef.current = setInterval(() => setActive((a) => (a + 1) % activeSlides.length), 6000);
   };
 
   useEffect(() => {
     startTimer();
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
+  }, [activeSlides.length]);
 
   const goTo = (i: number) => { setActive(i); startTimer(); };
-  const slide = heroSlides[active];
+  const slide = activeSlides[active] || activeSlides[0];
 
   const calculateSolar = (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +197,7 @@ function HeroSection() {
 
       {/* ── Background slides ── */}
       <div className="absolute inset-0">
-        {heroSlides.map((s, i) => (
+        {activeSlides.map((s: any, i: number) => (
           <div
             key={i}
             className="absolute inset-0 transition-opacity duration-1000 overflow-hidden"
@@ -529,9 +545,11 @@ function HeroSection() {
 }
 
 export function HomeComponent() {
+  const { slides, content } = useCMS("home");
+
   return (
     <div className="bg-background text-foreground font-sans">
-      <HeroSection />
+      <HeroSection dbSlides={slides} />
 
       {/* ABOUT */}
       <section id="about" className="py-20">
@@ -541,14 +559,12 @@ export function HomeComponent() {
               <span className="h-2 w-2 rounded-full bg-primary" /> ABOUT US
             </p>
             <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold text-brand-navy">
-              Flash Renewable Energy
-              <br /> Solutions Pvt. Ltd.
+              {content.about_title?.title || "Flash Renewable Energy"}
+              {content.about_title?.subtitle && <><br /> {content.about_title.subtitle}</>}
+              {!content.about_title && <><br /> Solutions Pvt. Ltd.</>}
             </h2>
             <p className="mt-5 text-muted-foreground leading-relaxed">
-              We are a leading renewable energy company delivering high-quality, cost-effective and
-              sustainable solar solutions. From rooftop installations to large-scale solar power
-              plants, we provide end-to-end EPC services with the highest standards of safety and
-              performance.
+              {content.about_title?.body || "We are a leading renewable energy company delivering high-quality, cost-effective and sustainable solar solutions. From rooftop installations to large-scale solar power plants, we provide end-to-end EPC services with the highest standards of safety and performance."}
             </p>
 
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6">

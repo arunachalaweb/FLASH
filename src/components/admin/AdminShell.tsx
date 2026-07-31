@@ -42,6 +42,7 @@ const adminSections: Section[] = [
     title: "CMS",
     items: [
       { to: "/admin/cms/pages", label: "Page Content", icon: FileEdit },
+      { to: "/admin/cms/slides", label: "Hero Sliders", icon: ImageIcon },
       { to: "/admin/cms/services", label: "Services", icon: Layers },
       { to: "/admin/cms/projects", label: "Projects", icon: ImageIcon },
       { to: "/admin/cms/testimonials", label: "Testimonials", icon: MessageSquareQuote },
