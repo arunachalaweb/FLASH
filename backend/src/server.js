@@ -719,6 +719,9 @@ app.delete("/api/:table/:id", async (req, res) => {
 
 // Backup DB
 app.get("/api/db/backup", requireAuth, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access Denied: Only Admins can manage the database." });
+  }
   const dbPath = path.join(__dirname, "..", "prisma", "dev.db");
   if (!fs.existsSync(dbPath)) {
     return res.status(404).json({ error: "Database file not found" });
@@ -728,6 +731,9 @@ app.get("/api/db/backup", requireAuth, (req, res) => {
 
 // Restore DB
 app.post("/api/db/restore", requireAuth, upload.single("database"), async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access Denied: Only Admins can manage the database." });
+  }
   try {
     if (!req.file) return res.status(400).json({ error: "No database file uploaded" });
     
@@ -735,6 +741,9 @@ app.post("/api/db/restore", requireAuth, upload.single("database"), async (req, 
     
     // Disconnect prisma safely
     await prisma.$disconnect();
+    
+    // Sleep 500ms to allow file locks to release fully
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Backup current just in case
     if (fs.existsSync(targetPath)) {
@@ -744,8 +753,12 @@ app.post("/api/db/restore", requireAuth, upload.single("database"), async (req, 
     // Clean WAL and SHM if they exist
     const walPath = targetPath + "-wal";
     const shmPath = targetPath + "-shm";
-    if (fs.existsSync(walPath)) fs.unlinkSync(walPath);
-    if (fs.existsSync(shmPath)) fs.unlinkSync(shmPath);
+    if (fs.existsSync(walPath)) {
+      try { fs.unlinkSync(walPath); } catch (e) { console.warn("Failed to delete WAL file:", e.message); }
+    }
+    if (fs.existsSync(shmPath)) {
+      try { fs.unlinkSync(shmPath); } catch (e) { console.warn("Failed to delete SHM file:", e.message); }
+    }
     
     // Replace with new db
     fs.copyFileSync(req.file.path, targetPath);
@@ -757,6 +770,8 @@ app.post("/api/db/restore", requireAuth, upload.single("database"), async (req, 
     res.json({ message: "Database restored successfully!" });
   } catch (err) {
     console.error("Restore error:", err);
+    // Reconnect on error
+    try { await prisma.$connect(); } catch (e) {}
     res.status(500).json({ error: "Failed to restore database: " + err.message });
   }
 });
