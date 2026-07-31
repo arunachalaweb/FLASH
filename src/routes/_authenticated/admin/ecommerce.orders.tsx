@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Receipt, CreditCard, ChevronRight, X, ArrowRight, Eye, Check } from "lucide-react";
+import { OrdersTable } from "~/components/admin/OrdersTable";
 
 export const Route = createFileRoute("/_authenticated/admin/ecommerce/orders")({
   head: () => ({ meta: [{ title: "Orders & Invoices | Flash Admin" }] }),
