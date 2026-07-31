@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-r
 import { useState, useEffect } from "react";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
+import { PageHero } from "@/components/site/PageHero";
 import { ArrowLeft, ShoppingCart, ShieldCheck, Truck, RefreshCw, Check, AlertCircle, FileText, Share2, HelpCircle, PhoneCall, PenSquare } from "lucide-react";
 import { addToCart } from "@/lib/cart";
 import { toast } from "sonner";
@@ -35,7 +36,6 @@ interface Product {
   datasheet_url?: string;
   video_url?: string;
   weight?: number;
-  // Technical specs
   watt_capacity?: number;
   voltage?: string;
   phase?: string;
@@ -183,8 +183,8 @@ function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col justify-between">
-        <Header />
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+        <Header overlay />
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary" />
         </div>
@@ -195,8 +195,8 @@ function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col justify-between">
-        <Header />
+      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+        <Header overlay />
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
           <h2 className="text-xl font-bold">Solar Product Not Found</h2>
@@ -211,260 +211,264 @@ function ProductDetailPage() {
   const finalPrice = product.sale_price ?? product.price;
   const isOutOfStock = product.stock_quantity <= 0;
 
-  // WhatsApp query text
   const waUrl = `https://wa.me/919150011428?text=${encodeURIComponent(`Hi FLASH, I am interested in purchasing ${product.name} (SKU: ${product.sku}). Please let me know current stock availability.`)}`;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans">
-      <Header />
+    <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
+      <div>
+        <Header overlay />
+        <PageHero
+          title={product.name}
+          crumb="Product Specifications"
+          tagline={product.category?.name || "Solar Component"}
+        />
 
-      <main className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Link */}
-        <Link to="/products" className="inline-flex items-center gap-2 text-slate-400 hover:text-primary transition text-sm mb-8 font-semibold">
-          <ArrowLeft className="h-4 w-4" /> Back to Solar Shop
-        </Link>
+        <main className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back Link */}
+          <Link to="/products" className="inline-flex items-center gap-2 text-slate-550 hover:text-primary transition text-sm mb-8 font-semibold">
+            <ArrowLeft className="h-4 w-4" /> Back to Solar Shop
+          </Link>
 
-        <div className="lg:grid lg:grid-cols-2 lg:gap-12">
-          {/* Left: Gallery & Assets */}
-          <div className="space-y-6">
-            <div className="aspect-video bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-xl relative">
-              <img
-                src={images[activeImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`w-20 aspect-video rounded-xl overflow-hidden border-2 transition ${
-                      activeImage === idx ? "border-primary" : "border-slate-800"
-                    }`}
-                  >
-                    <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Video Player/Placeholder */}
-            <div className="bg-slate-800/20 border border-slate-700/50 p-6 rounded-3xl flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-slate-350">Product Video Guide</h4>
-                <p className="text-xs text-slate-450 mt-1">Watch installation walkthrough and efficiency tests.</p>
-              </div>
-              <a
-                href={product.video_url || "https://youtube.com"}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 font-bold px-4 py-2.5 rounded-xl border border-slate-750 transition"
-              >
-                Watch Video Demo
-              </a>
-            </div>
-          </div>
-
-          {/* Right: Product summary, CTA forms */}
-          <div className="space-y-8 mt-8 lg:mt-0">
-            <div>
-              <span className="text-xs font-bold text-primary uppercase tracking-widest">{product.category?.name || "Solar Component"}</span>
-              <h1 className="text-2xl sm:text-3xl font-black mt-1 text-white leading-tight">{product.name}</h1>
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-400">
-                <span>SKU: <strong className="font-mono text-slate-300">{product.sku}</strong></span>
-                {product.brand?.name && <span>Brand: <strong className="text-slate-300">{product.brand.name}</strong></span>}
-                <span>Status: <strong className={isOutOfStock ? "text-red-500" : "text-green-500"}>{isOutOfStock ? "Out of Stock" : "In Stock"}</strong></span>
-              </div>
-            </div>
-
-            {/* Price Card */}
-            <div className="bg-slate-800/40 p-6 rounded-3xl border border-slate-700/50 space-y-3">
-              <div className="flex items-baseline gap-3">
-                <span className="text-2xl sm:text-3xl font-black font-mono text-primary">
-                  ₹{finalPrice.toLocaleString("en-IN")}
-                </span>
-                {product.sale_price !== null && (
-                  <span className="text-slate-450 line-through text-base font-mono">
-                    ₹{product.price.toLocaleString("en-IN")}
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-450 font-medium">Price includes GST (18%) standard central and state tax rate rules.</p>
-            </div>
-
-            {/* Quantity and Checkout actions */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-semibold text-slate-300">Quantity:</span>
-                <div className="flex items-center border border-slate-700 bg-slate-900 rounded-xl">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3.5 py-2 text-slate-400 hover:text-white"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 font-mono font-bold text-sm">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3.5 py-2 text-slate-400 hover:text-white"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-slate-800 hover:bg-slate-750 text-white font-bold rounded-2xl border border-slate-700/50 transition disabled:opacity-50"
-                >
-                  <ShoppingCart className="h-4 w-4" /> Add to Cart
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  disabled={isOutOfStock}
-                  className="w-full py-3.5 bg-primary hover:bg-primary-hover text-slate-900 font-black rounded-2xl transition disabled:opacity-50"
-                >
-                  Buy Now
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-green-900/40 hover:bg-green-900/60 border border-green-800 rounded-2xl text-xs font-bold text-green-400 transition"
-                >
-                  <PhoneCall className="h-4 w-4" /> WhatsApp Enquiry
-                </a>
-                <button
-                  onClick={() => setShowEnqModal(true)}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-primary/10 hover:bg-primary/25 border border-primary/30 rounded-2xl text-xs font-bold text-primary transition"
-                >
-                  <PenSquare className="h-4 w-4" /> Request Quote
-                </button>
-              </div>
-            </div>
-
-            {/* Pincode delivery check */}
-            <form onSubmit={checkDelivery} className="bg-slate-800/40 p-5 rounded-2xl border border-slate-700/50 space-y-3">
-              <label className="text-xs font-bold text-slate-400 block uppercase">Check Logistics Delivery</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter 6-digit Delivery Pincode"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary text-white font-mono"
+          <div className="lg:grid lg:grid-cols-2 lg:gap-12">
+            {/* Left: Gallery & Assets */}
+            <div className="space-y-6">
+              <div className="aspect-video bg-slate-950 rounded-3xl overflow-hidden border border-border shadow-xl relative">
+                <img
+                  src={images[activeImage]}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
                 />
-                <button
-                  type="submit"
-                  disabled={delChecking}
-                  className="bg-primary hover:bg-primary-hover text-slate-900 px-4 py-2 rounded-xl text-xs font-bold transition"
-                >
-                  {delChecking ? "Checking..." : "Verify Pincode"}
-                </button>
-              </div>
-              {delResult && (
-                <p className={`text-xs font-bold ${delResult.available ? "text-green-400" : "text-red-400"}`}>
-                  {delResult.message} {delResult.available && `Shipping Estimate: ₹${delResult.charge}`}
-                </p>
-              )}
-            </form>
-          </div>
-        </div>
-
-        {/* Technical Specs sheet */}
-        <section className="mt-16 space-y-6">
-          <h3 className="text-lg font-black text-white border-b pb-2 border-slate-800">Technical Specifications</h3>
-          <div className="bg-slate-800/20 border border-slate-700/50 rounded-2xl overflow-hidden p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-350">
-              <div className="flex justify-between border-b border-dashed pb-2">
-                <span className="font-semibold text-slate-450">Regular Price</span>
-                <span className="font-mono">₹{product.price}</span>
-              </div>
-              <div className="flex justify-between border-b border-dashed pb-2">
-                <span className="font-semibold text-slate-450">Estimated Shipping Weight</span>
-                <span className="font-mono">{product.weight || "—"} kg</span>
               </div>
               
-              {/* Dynamic specs based on values */}
-              {product.panel_technology && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Technology</span>
-                  <span>{product.panel_technology}</span>
+              {images.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {images.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(idx)}
+                      className={`w-20 aspect-video rounded-xl overflow-hidden border-2 transition ${
+                        activeImage === idx ? "border-primary" : "border-border"
+                      }`}
+                    >
+                      <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
                 </div>
               )}
-              {product.cell_type && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Cell Type</span>
-                  <span>{product.cell_type}</span>
+
+              {/* Video Player/Placeholder */}
+              <div className="bg-slate-50 border border-border p-6 rounded-3xl flex items-center justify-between shadow-sm">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800">Product Video Guide</h4>
+                  <p className="text-xs text-slate-500 mt-1">Watch installation walkthrough and efficiency tests.</p>
                 </div>
-              )}
-              {product.watt_capacity && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Rated Capacity</span>
-                  <span>{product.watt_capacity}W</span>
+                <a
+                  href={product.video_url || "https://youtube.com"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-xs bg-white hover:bg-slate-50 font-bold px-4 py-2.5 rounded-xl border border-border transition text-slate-800"
+                >
+                  Watch Video Demo
+                </a>
+              </div>
+            </div>
+
+            {/* Right: Product summary, CTA forms */}
+            <div className="space-y-8 mt-8 lg:mt-0">
+              <div>
+                <span className="text-xs font-bold text-primary uppercase tracking-widest">{product.category?.name || "Solar Component"}</span>
+                <h1 className="text-2xl sm:text-3xl font-black mt-1 text-brand-navy leading-tight">{product.name}</h1>
+                <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-slate-500">
+                  <span>SKU: <strong className="font-mono text-slate-700">{product.sku}</strong></span>
+                  {product.brand?.name && <span>Brand: <strong className="text-slate-700">{product.brand.name}</strong></span>}
+                  <span>Status: <strong className={isOutOfStock ? "text-red-500" : "text-green-500"}>{isOutOfStock ? "Out of Stock" : "In Stock"}</strong></span>
                 </div>
-              )}
-              {product.voltage && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Operational Voltage</span>
-                  <span>{product.voltage}</span>
+              </div>
+
+              {/* Price Card */}
+              <div className="bg-slate-50 p-6 rounded-3xl border border-border space-y-3 shadow-sm">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-2xl sm:text-3xl font-black font-mono text-slate-850">
+                    ₹{finalPrice.toLocaleString("en-IN")}
+                  </span>
+                  {product.sale_price !== null && (
+                    <span className="text-slate-400 line-through text-base font-mono">
+                      ₹{product.price.toLocaleString("en-IN")}
+                    </span>
+                  )}
                 </div>
-              )}
-              {product.phase && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Phase Phase</span>
-                  <span>{product.phase}</span>
+                <p className="text-[10px] text-slate-450 font-medium">Price includes GST (18%) standard central and state tax rate rules.</p>
+              </div>
+
+              {/* Quantity and Checkout actions */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-semibold text-slate-700">Quantity:</span>
+                  <div className="flex items-center border border-border bg-slate-50 rounded-xl">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3.5 py-2 text-slate-500 hover:text-slate-800"
+                    >
+                      -
+                    </button>
+                    <span className="px-4 font-mono font-bold text-sm text-slate-800">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3.5 py-2 text-slate-500 hover:text-slate-800"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              )}
-              {product.battery_capacity && (
-                <div className="flex justify-between border-b border-dashed pb-2">
-                  <span className="font-semibold text-slate-450">Ampere Hour Rating</span>
-                  <span>{product.battery_capacity}</span>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-2xl border border-border transition disabled:opacity-50"
+                  >
+                    <ShoppingCart className="h-4 w-4" /> Add to Cart
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock}
+                    className="w-full py-3.5 bg-gradient-to-r from-primary to-brand-gold text-brand-navy-deep font-black rounded-2xl hover:shadow-lg transition disabled:opacity-50"
+                  >
+                    Buy Now
+                  </button>
                 </div>
-              )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <a
+                    href={waUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 bg-green-50 hover:bg-green-100/50 border border-green-200 rounded-2xl text-xs font-bold text-green-600 transition"
+                  >
+                    <PhoneCall className="h-4 w-4" /> WhatsApp Enquiry
+                  </a>
+                  <button
+                    onClick={() => setShowEnqModal(true)}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3 bg-primary/10 hover:bg-primary/25 border border-primary/30 rounded-2xl text-xs font-bold text-brand-navy transition"
+                  >
+                    <PenSquare className="h-4 w-4" /> Request Quote
+                  </button>
+                </div>
+              </div>
+
+              {/* Pincode check */}
+              <form onSubmit={checkDelivery} className="bg-slate-50 p-5 rounded-2xl border border-border space-y-3 shadow-sm">
+                <label className="text-xs font-bold text-slate-400 block uppercase">Check Logistics Delivery</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Enter 6-digit Delivery Pincode"
+                    value={pincode}
+                    onChange={(e) => setPincode(e.target.value)}
+                    className="flex-1 bg-white border border-border rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-primary text-slate-800 font-mono"
+                  />
+                  <button
+                    type="submit"
+                    disabled={delChecking}
+                    className="bg-primary hover:bg-primary-hover text-slate-900 px-4 py-2 rounded-xl text-xs font-bold transition"
+                  >
+                    {delChecking ? "Checking..." : "Verify Pincode"}
+                  </button>
+                </div>
+                {delResult && (
+                  <p className={`text-xs font-bold ${delResult.available ? "text-green-600" : "text-red-500"}`}>
+                    {delResult.message} {delResult.available && `Shipping Estimate: ₹${delResult.charge}`}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
-        </section>
 
-        {/* Related Products */}
-        {related.length > 0 && (
+          {/* Specs Sheet */}
           <section className="mt-16 space-y-6">
-            <h3 className="text-lg font-black text-white">Related Solar Products</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {related.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/products/${item.slug}`}
-                  className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 block hover:border-primary/50 transition group"
-                >
-                  <div className="aspect-video rounded-xl overflow-hidden bg-slate-950">
-                    <img src={getProductImages(item.images)[0]} alt={item.name} className="w-full h-full object-cover" />
+            <h3 className="text-lg font-black text-brand-navy border-b pb-2 border-slate-100">Technical Specifications</h3>
+            <div className="bg-white border border-border rounded-2xl overflow-hidden p-6 shadow-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm text-slate-655">
+                <div className="flex justify-between border-b border-dashed pb-2">
+                  <span className="font-semibold text-slate-500">Regular Price</span>
+                  <span className="font-mono">₹{product.price}</span>
+                </div>
+                <div className="flex justify-between border-b border-dashed pb-2">
+                  <span className="font-semibold text-slate-500">Estimated Shipping Weight</span>
+                  <span className="font-mono">{product.weight || "—"} kg</span>
+                </div>
+                {product.panel_technology && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Technology</span>
+                    <span>{product.panel_technology}</span>
                   </div>
-                  <h4 className="font-bold text-xs text-white truncate group-hover:text-primary transition mt-3">{item.name}</h4>
-                  <span className="text-primary font-mono text-xs font-bold block mt-1">₹{item.price.toLocaleString("en-IN")}</span>
-                </Link>
-              ))}
+                )}
+                {product.cell_type && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Cell Type</span>
+                    <span>{product.cell_type}</span>
+                  </div>
+                )}
+                {product.watt_capacity && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Rated Capacity</span>
+                    <span>{product.watt_capacity}W</span>
+                  </div>
+                )}
+                {product.voltage && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Operational Voltage</span>
+                    <span>{product.voltage}</span>
+                  </div>
+                )}
+                {product.phase && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Phase Phase</span>
+                    <span>{product.phase}</span>
+                  </div>
+                )}
+                {product.battery_capacity && (
+                  <div className="flex justify-between border-b border-dashed pb-2">
+                    <span className="font-semibold text-slate-500">Ampere Hour Rating</span>
+                    <span>{product.battery_capacity}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
-        )}
-      </main>
 
-      {/* Custom Quote Request Modal */}
+          {/* Related Products */}
+          {related.length > 0 && (
+            <section className="mt-16 space-y-6">
+              <h3 className="text-lg font-black text-brand-navy">Related Solar Products</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {related.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={`/products/${item.slug}`}
+                    className="bg-white border border-border rounded-2xl p-4 block hover:border-primary/50 transition group shadow-sm"
+                  >
+                    <div className="aspect-video rounded-xl overflow-hidden bg-slate-950">
+                      <img src={getProductImages(item.images)[0]} alt={item.name} className="w-full h-full object-cover" />
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-800 truncate group-hover:text-primary transition mt-3">{item.name}</h4>
+                    <span className="text-primary font-mono text-xs font-bold block mt-1">₹{item.price.toLocaleString("en-IN")}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </main>
+      </div>
+
+      {/* Quote Request Modal */}
       {showEnqModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <form onSubmit={submitEnquiry} className="bg-slate-900 border border-slate-850 rounded-3xl p-6 md:p-8 max-w-md w-full space-y-6 relative text-white">
+          <form onSubmit={submitEnquiry} className="bg-white border border-border rounded-3xl p-6 md:p-8 max-w-md w-full space-y-6 relative text-slate-800 shadow-xl">
             <div>
-              <h3 className="text-lg font-black text-primary">Request Custom Quote</h3>
-              <p className="text-slate-400 text-xs mt-1">Request custom pricing and logistics timelines for {product.name}</p>
+              <h3 className="text-lg font-black text-brand-navy">Request Custom Quote</h3>
+              <p className="text-slate-500 text-xs mt-1">Request custom pricing and logistics timelines for {product.name}</p>
             </div>
 
             <div className="space-y-4">
@@ -475,7 +479,7 @@ function ProductDetailPage() {
                   required
                   value={enqName}
                   onChange={(e) => setEnqName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -486,7 +490,7 @@ function ProductDetailPage() {
                   required
                   value={enqPhone}
                   onChange={(e) => setEnqPhone(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -497,7 +501,7 @@ function ProductDetailPage() {
                   required
                   value={enqEmail}
                   onChange={(e) => setEnqEmail(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -507,7 +511,7 @@ function ProductDetailPage() {
                   value={enqMessage}
                   onChange={(e) => setEnqMessage(e.target.value)}
                   placeholder="Installation needed? Special shipping notes?"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white h-20 resize-none focus:outline-none focus:border-primary"
+                  className="w-full bg-slate-50 border border-border rounded-lg p-2.5 text-xs h-20 resize-none focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
@@ -516,7 +520,7 @@ function ProductDetailPage() {
               <button
                 type="button"
                 onClick={() => setShowEnqModal(false)}
-                className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-750 text-white font-bold rounded-lg text-xs transition border border-slate-750"
+                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg text-xs transition border border-border"
               >
                 Cancel
               </button>
