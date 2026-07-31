@@ -248,20 +248,13 @@ function ProductDetailPage() {
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
       <div>
-        <Header />
+        <Header overlay />
         
-        {/* Breadcrumb strip matching premium layout */}
-        <div className="bg-slate-50 border-b border-border py-4">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-slate-500 flex items-center gap-2">
-            <Link to="/" className="hover:text-primary transition">Home</Link>
-            <span>/</span>
-            <Link to="/products" className="hover:text-primary transition">Shop</Link>
-            <span>/</span>
-            <span className="text-slate-400 capitalize">{product.category?.name || "Solar Components"}</span>
-            <span>/</span>
-            <span className="text-brand-navy font-bold truncate max-w-[200px]">{product.name}</span>
-          </div>
-        </div>
+        <PageHero
+          title={product.name}
+          crumb="Product Details"
+          tagline={`SKU: ${product.sku} | Category: ${product.category?.name || "Solar Component"}`}
+        />
 
         <main className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
