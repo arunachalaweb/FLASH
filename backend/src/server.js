@@ -114,6 +114,101 @@ async function initializeDatabase() {
     }
     console.log("Seeded default page content sections.");
   }
+
+  // 4. Seed Categories and Products if empty
+  const categoryCount = await prisma.category.count();
+  if (categoryCount === 0) {
+    const solarPanels = await prisma.category.create({
+      data: {
+        name: "Solar Panels",
+        slug: "solar-panels",
+        description: "High-efficiency PV modules for residential and commercial systems."
+      }
+    });
+
+    const inverters = await prisma.category.create({
+      data: {
+        name: "Inverters",
+        slug: "inverters",
+        description: "Advanced solar power inverters (On-grid, Off-grid, Hybrid)."
+      }
+    });
+
+    const accessories = await prisma.category.create({
+      data: {
+        name: "Accessories",
+        slug: "accessories",
+        description: "Cables, structures, connectors, and mounting accessories."
+      }
+    });
+
+    console.log("Seeded default categories.");
+
+    // Seed some products
+    await prisma.product.create({
+      data: {
+        name: "Monocrystalline Solar Panel 550W",
+        slug: "monocrystalline-solar-panel-550w",
+        description: "Top-tier Mono PERC Half-Cut solar panel with 21.3% efficiency, ideal for premium home and factory rooftops. Extreme durability with wind resistance.",
+        price: 18500,
+        sale_price: 16200,
+        sku: "SLR-MONO-550W",
+        stock_quantity: 45,
+        manage_stock: true,
+        images: JSON.stringify(["https://images.unsplash.com/photo-1509391366360-2e959784a276?w=600&auto=format&fit=crop&q=60"]),
+        category_id: solarPanels.id,
+        published: true
+      }
+    });
+
+    await prisma.product.create({
+      data: {
+        name: "Bifacial Solar Panel 440W",
+        slug: "bifacial-solar-panel-440w",
+        description: "Dual-sided glass panel capturing direct sunlight as well as reflected albedo light from below, increasing energy yield by up to 25%.",
+        price: 15000,
+        sku: "SLR-BIFI-440W",
+        stock_quantity: 30,
+        manage_stock: true,
+        images: JSON.stringify(["https://images.unsplash.com/photo-1620022347116-e778d2b636ec?w=600&auto=format&fit=crop&q=60"]),
+        category_id: solarPanels.id,
+        published: true
+      }
+    });
+
+    await prisma.product.create({
+      data: {
+        name: "On-Grid Solar Inverter 5kW - Single Phase",
+        slug: "on-grid-solar-inverter-5kw",
+        description: "Smart solar inverter with dual MPPT trackers, built-in WiFi monitoring, dynamic feed-in control, and an active safety cooling design.",
+        price: 48000,
+        sale_price: 42500,
+        sku: "INV-ONG-5KW",
+        stock_quantity: 12,
+        manage_stock: true,
+        images: JSON.stringify(["https://images.unsplash.com/photo-1558441719-ff34b0524a24?w=600&auto=format&fit=crop&q=60"]),
+        category_id: inverters.id,
+        published: true
+      }
+    });
+
+    await prisma.product.create({
+      data: {
+        name: "Solar PV DC Cable 4 Sq.mm (100 Meter)",
+        slug: "solar-pv-dc-cable-4sqmm",
+        description: "Copper core DC wire with double XLPE insulation, UV resistant, waterproof, and designed to withstand standard outdoor temperatures.",
+        price: 3500,
+        sku: "ACC-CBL-4MM",
+        stock_quantity: 80,
+        manage_stock: true,
+        images: JSON.stringify(["https://images.unsplash.com/photo-1544724480-6cc691cf756f?w=600&auto=format&fit=crop&q=60"]),
+        category_id: accessories.id,
+        published: true
+      }
+    });
+
+    console.log("Seeded default products.");
+  }
 }
 initializeDatabase().catch(console.error);
 
@@ -126,7 +221,9 @@ async function requireAuth(req, res, next) {
   const token = authHeader.split(" ")[1];
   const isValidAdmin = token === process.env.ADMIN_TOKEN || token === "default-admin-token";
   const isValidStaff = token.startsWith("staff-token-");
-  if (!isValidAdmin && !isValidStaff) {
+  const isValidCustomer = token.startsWith("customer-token-");
+
+  if (!isValidAdmin && !isValidStaff && !isValidCustomer) {
     return res.status(401).json({ error: "Invalid token" });
   }
   
@@ -149,6 +246,20 @@ async function requireAuth(req, res, next) {
       return next();
     } catch (e) {
       return res.status(500).json({ error: "Session verification failed: " + e.message });
+    }
+  }
+
+  if (isValidCustomer) {
+    const customerId = token.replace("customer-token-", "");
+    try {
+      const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+      if (!customer) {
+        return res.status(401).json({ error: "Customer not found" });
+      }
+      req.user = { id: customer.id, role: "customer" };
+      return next();
+    } catch (e) {
+      return res.status(500).json({ error: "Customer verification failed: " + e.message });
     }
   }
 }
@@ -296,13 +407,27 @@ function modelFor(table) {
       return prisma.investorEnquiry;
     case "partner_applications":
       return prisma.channelPartnerApplication;
+    case "categories":
+      return prisma.category;
+    case "products":
+      return prisma.product;
+    case "customers":
+      return prisma.customer;
+    case "orders":
+      return prisma.order;
+    case "order_items":
+      return prisma.orderItem;
+    case "invoices":
+      return prisma.invoice;
+    case "credit_notes":
+      return prisma.creditNote;
     default:
       return null;
   }
 }
 
 // Fields requiring JSON stringification in SQLite
-const jsonFields = ["gallery_images", "benefits"];
+const jsonFields = ["gallery_images", "benefits", "images"];
 const booleanFields = ["published", "active"];
 
 function serializeBody(body) {
@@ -387,17 +512,28 @@ async function sendNotificationEmail(subject, htmlBody) {
   }
 }
 
-// Apply auth middleware to all /api routes except login and public forms POST submissions
+// Apply auth middleware to all /api routes except login, public forms, public catalog, and customer auth
 app.use("/api", (req, res, next) => {
   if (req.path === "/login") return next();
   
-  // Public submissions endpoints: allow POST operations
+  // Public catalog view endpoints: allow GET
+  if (req.method === "GET" && (
+    req.path.startsWith("/products") ||
+    req.path.startsWith("/categories")
+  )) {
+    return next();
+  }
+
+  // Public submissions and customer auth: allow POST
   if (req.method === "POST" && (
     req.path === "/contact_enquiries" ||
     req.path === "/quote_requests" ||
     req.path === "/newsletter_subscribers" ||
     req.path === "/investor_enquiries" ||
-    req.path === "/partner_applications"
+    req.path === "/partner_applications" ||
+    req.path === "/customers/signup" ||
+    req.path === "/customers/login" ||
+    req.path === "/orders/create"
   )) {
     return next();
   }
@@ -493,6 +629,289 @@ app.post("/api/settings/test_smtp", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || "Failed to verify SMTP connection or send test email." });
+  }
+});
+
+// ─── E-COMMERCE ENDPOINTS ───────────────────────────────────────────────────
+
+// Customer Sign Up
+app.post("/api/customers/signup", async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Name, email and password are required" });
+    }
+    const existing = await prisma.customer.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: "Email is already registered" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const customer = await prisma.customer.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+      }
+    });
+
+    res.json({
+      token: "customer-token-" + customer.id,
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+    });
+  } catch (error) {
+    console.error("Customer Signup Error:", error);
+    res.status(500).json({ error: "Failed to create customer account: " + error.message });
+  }
+});
+
+// Customer Login
+app.post("/api/customers/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const customer = await prisma.customer.findUnique({ where: { email } });
+    if (!customer) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const valid = await bcrypt.compare(password, customer.password);
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    res.json({
+      token: "customer-token-" + customer.id,
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+    });
+  } catch (error) {
+    console.error("Customer Login Error:", error);
+    res.status(500).json({ error: "Failed to login: " + error.message });
+  }
+});
+
+// Customer Profile (Requires Authentication)
+app.get("/api/customer/profile", requireAuth, async (req, res) => {
+  if (req.user.role !== "customer") {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  try {
+    const customer = await prisma.customer.findUnique({
+      where: { id: req.user.id }
+    });
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+    const { password, ...safeData } = customer;
+    res.json(safeData);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch profile: " + e.message });
+  }
+});
+
+// Customer Profile Update (Requires Authentication)
+app.post("/api/customer/profile/update", requireAuth, async (req, res) => {
+  if (req.user.role !== "customer") {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  try {
+    const { name, phone, address_line1, address_line2, city, state, postal_code } = req.body;
+    const updated = await prisma.customer.update({
+      where: { id: req.user.id },
+      data: {
+        name,
+        phone,
+        address_line1,
+        address_line2,
+        city,
+        state,
+        postal_code
+      }
+    });
+    const { password, ...safeData } = updated;
+    res.json(safeData);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to update profile: " + e.message });
+  }
+});
+
+// Fetch Customer's Orders (Requires Authentication)
+app.get("/api/customer/orders", requireAuth, async (req, res) => {
+  if (req.user.role !== "customer") {
+    return res.status(403).json({ error: "Access denied" });
+  }
+  try {
+    const orders = await prisma.order.findMany({
+      where: { customer_id: req.user.id },
+      include: {
+        order_items: {
+          include: { product: true }
+        }
+      },
+      orderBy: { created_at: "desc" }
+    });
+    res.json(orders);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to fetch orders: " + e.message });
+  }
+});
+
+// Place Order (Public/Guest or Registered Customer Checkout)
+app.post("/api/orders/create", async (req, res) => {
+  try {
+    const {
+      cart,
+      shipping_name,
+      shipping_phone,
+      shipping_address,
+      shipping_city,
+      shipping_state,
+      shipping_postal_code,
+      payment_method
+    } = req.body;
+
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+      return res.status(400).json({ error: "Cart is empty" });
+    }
+
+    if (!shipping_name || !shipping_address || !shipping_city || !shipping_state || !shipping_postal_code) {
+      return res.status(400).json({ error: "Missing required shipping address fields" });
+    }
+
+    // Optional: Determine if customer is logged in
+    let customerId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      if (token.startsWith("customer-token-")) {
+        customerId = token.replace("customer-token-", "");
+      }
+    }
+
+    // Execute checkout inside a database transaction to verify/decrement stock
+    const result = await prisma.$transaction(async (tx) => {
+      let totalAmount = 0;
+      const orderItemsData = [];
+
+      for (const item of cart) {
+        const product = await tx.product.findUnique({
+          where: { id: item.id }
+        });
+
+        if (!product) {
+          throw new Error(`Product not found: ${item.id}`);
+        }
+
+        if (product.manage_stock) {
+          if (product.stock_quantity < item.quantity) {
+            throw new Error(`Insufficient stock for product "${product.name}". Available: ${product.stock_quantity}, Requested: ${item.quantity}`);
+          }
+
+          // Decrement stock
+          await tx.product.update({
+            where: { id: product.id },
+            data: {
+              stock_quantity: product.stock_quantity - item.quantity
+            }
+          });
+        }
+
+        const price = product.sale_price ?? product.price;
+        const total = price * item.quantity;
+        totalAmount += total;
+
+        orderItemsData.push({
+          product_id: product.id,
+          quantity: item.quantity,
+          price,
+          total
+        });
+      }
+
+      // Generate Invoice & Order numbers
+      const timestamp = Date.now().toString().slice(-6);
+      const random = Math.floor(100 + Math.random() * 900);
+      const orderNumber = `FL-ORD-${timestamp}-${random}`;
+      const invoiceNumber = `FL-INV-${timestamp}-${random}`;
+
+      // Create Order
+      const order = await tx.order.create({
+        data: {
+          order_number: orderNumber,
+          customer_id: customerId,
+          total_amount: totalAmount,
+          shipping_name,
+          shipping_phone,
+          shipping_address,
+          shipping_city,
+          shipping_state,
+          shipping_postal_code,
+          payment_method: payment_method || "cod",
+          order_items: {
+            create: orderItemsData
+          }
+        },
+        include: {
+          order_items: true
+        }
+      });
+
+      // Automatically generate invoice
+      await tx.invoice.create({
+        data: {
+          invoice_number: invoiceNumber,
+          order_id: order.id,
+          amount: totalAmount,
+          status: "issued"
+        }
+      });
+
+      return order;
+    });
+
+    res.json({ success: true, order: result });
+  } catch (error) {
+    console.error("Checkout Transaction Error:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Admin generate credit note manual endpoint
+app.post("/api/admin/credit-notes/create", requireAuth, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access Denied: Only Admin can create credit notes" });
+  }
+  try {
+    const { orderId, amount, reason } = req.body;
+    if (!orderId || !amount) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(100 + Math.random() * 900);
+    const creditNoteNumber = `FL-CN-${timestamp}-${random}`;
+
+    const creditNote = await prisma.creditNote.create({
+      data: {
+        credit_note_number: creditNoteNumber,
+        order_id: orderId,
+        amount: parseFloat(amount),
+        reason
+      }
+    });
+
+    res.json(creditNote);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate credit note: " + error.message });
   }
 });
 

@@ -20,6 +20,10 @@ import {
   Newspaper,
   TrendingUp,
   Handshake,
+  ShoppingBag,
+  Package,
+  ClipboardList,
+  CreditCard,
 } from "lucide-react";
 import logo from "@/assets/flash-logo-updated.png";
 
@@ -30,6 +34,16 @@ const adminSections: Section[] = [
   {
     title: "Overview",
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard }],
+  },
+  {
+    title: "E-Commerce",
+    items: [
+      { to: "/admin/ecommerce/products", label: "Products Manager", icon: ShoppingBag },
+      { to: "/admin/ecommerce/inventory", label: "Inventory (Stock)", icon: Package },
+      { to: "/admin/ecommerce/orders", label: "Orders & Invoices", icon: ClipboardList },
+      { to: "/admin/ecommerce/credit-notes", label: "Credit Notes", icon: CreditCard },
+      { to: "/admin/ecommerce/customers", label: "Customers Registry", icon: Users },
+    ]
   },
   {
     title: "Enquiries",

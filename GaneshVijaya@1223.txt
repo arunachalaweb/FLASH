@@ -1,0 +1,20 @@
+Root Password : GaneshVijaya@1223
+
+
+# 1. Pull the updates
+cd /var/www/FLASH/backend/FLASH
+git reset --hard HEAD
+git clean -fd
+git pull
+
+# 2. Sync database schema
+cd backend
+npx prisma db push
+cd ..
+
+# 3. Build the frontend
+NITRO_PRESET=node-server npm run build
+
+# 4. Restart processes to load updates
+pm2 restart flash-prod-frontend
+pm2 restart flash-backend --update-env

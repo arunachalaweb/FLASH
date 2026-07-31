@@ -9,13 +9,17 @@ import {
   LogIn,
   LayoutDashboard,
   LogOut,
+  ShoppingCart,
+  User as UserIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import logo from "@/assets/flash-logo-updated.png";
+import { getCart } from "@/lib/cart";
 
 const nav = [
   { label: "Home", to: "/" },
   { label: "About Us", to: "/about" },
+  { label: "Products", to: "/products" },
   { label: "Services", to: "/services" },
   { label: "Projects", to: "/projects" },
   { label: "Expertise", to: "/expertise" },
@@ -29,11 +33,33 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [adminUser, setAdminUser] = useState<string | null>(null);
 
+  // Customer states
+  const [customerToken, setCustomerToken] = useState<string | null>(null);
+  const [customerUser, setCustomerUser] = useState<any>(null);
+  const [cartCount, setCartCount] = useState(0);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setAdminToken(localStorage.getItem("admin_token"));
       setAdminUser(localStorage.getItem("admin_user"));
+      
+      setCustomerToken(localStorage.getItem("customer_token"));
+      try {
+        setCustomerUser(JSON.parse(localStorage.getItem("customer_user") || "null"));
+      } catch (e) {}
+
+      // Cart initial load
+      const cart = getCart();
+      setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
     }
+
+    // Listen for cart changes
+    const updateCart = () => {
+      const cart = getCart();
+      setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
+    };
+    window.addEventListener("flash_cart_update", updateCart);
+    return () => window.removeEventListener("flash_cart_update", updateCart);
   }, []);
 
   const signOut = () => {
@@ -44,6 +70,14 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
     setAdminToken(null);
     setAdminUser(null);
     setMenuOpen(false);
+    setOpen(false);
+  };
+
+  const customerSignOut = () => {
+    localStorage.removeItem("customer_token");
+    localStorage.removeItem("customer_user");
+    setCustomerToken(null);
+    setCustomerUser(null);
     setOpen(false);
   };
 
@@ -85,6 +119,33 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
             >
               <Phone className="h-3.5 w-3.5" /> +91 91500 11428
             </a>
+            <span className="h-4 w-px bg-white/20" aria-hidden="true" />
+            
+            {/* Customer Authentication */}
+            {customerToken ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/customer/dashboard"
+                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors text-xs font-bold"
+                >
+                  <UserIcon className="h-3.5 w-3.5 text-primary" /> Dashboard ({customerUser?.name?.split(" ")[0]})
+                </Link>
+                <button
+                  onClick={customerSignOut}
+                  className="hover:text-red-400 transition-colors text-xs flex items-center gap-1"
+                >
+                  <LogOut className="h-3.5 w-3.5" /> Sign out
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/customer/login"
+                className="inline-flex items-center gap-1.5 hover:text-primary transition-colors text-xs"
+              >
+                <UserIcon className="h-3.5 w-3.5" /> Shop Login
+              </Link>
+            )}
+
             <span className="h-4 w-px bg-white/20" aria-hidden="true" />
             {adminToken ? (
               <div className="relative">
@@ -158,6 +219,20 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
                   </Link>
                 ))}
               </nav>
+              
+              {/* Shopping Cart Icon */}
+              <Link
+                to="/cart"
+                className="relative p-2 text-brand-navy hover:text-primary transition-colors flex items-center justify-center bg-slate-100 rounded-full h-11 w-11"
+              >
+                <ShoppingCart className="h-5 w-5 text-brand-navy" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white font-bold text-[10px] h-5 w-5 rounded-full flex items-center justify-center shadow-lg border border-white">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+
               <Link
                 to="/quote"
                 className="group inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 hover:brightness-95 transition"
@@ -167,8 +242,20 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
               </Link>
             </div>
 
-            {/* Mobile: call + hamburger */}
+            {/* Mobile: call + cart + hamburger */}
             <div className="flex lg:hidden items-center gap-2 shrink-0">
+              <Link
+                to="/cart"
+                aria-label="Cart"
+                className="relative grid place-items-center h-10 w-10 rounded-full border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition"
+              >
+                <ShoppingCart className="h-4 w-4" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white font-bold text-[9px] h-4.5 w-4.5 rounded-full flex items-center justify-center shadow-md">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
               <a
                 href="tel:+919150011428"
                 aria-label="Call"
@@ -228,12 +315,38 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
               <Phone className="h-4 w-4 text-primary" /> +91 91500 11428
             </a>
             <div className="grid grid-cols-1 gap-3">
+              {customerToken ? (
+                <>
+                  <Link
+                    to="/customer/dashboard"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/40 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
+                  >
+                    <UserIcon className="h-4 w-4 text-primary" /> Customer Dashboard ({customerUser?.name?.split(" ")[0]})
+                  </Link>
+                  <button
+                    onClick={customerSignOut}
+                    className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-red-500/25 transition"
+                  >
+                    <LogOut className="h-4 w-4 text-primary" /> Sign out Shop Account
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/customer/login"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-white/10 transition"
+                >
+                  <UserIcon className="h-4 w-4 text-primary" /> Shop Login / Register
+                </Link>
+              )}
+
               {adminToken ? (
                 <>
                   <Link
                     to="/admin"
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/40 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
+                    className="flex items-center justify-center gap-2 rounded-full bg-primary/20 border border-primary/45 px-4 py-3 min-h-[52px] text-sm font-semibold text-white"
                   >
                     <LayoutDashboard className="h-4 w-4 text-primary" /> Admin Dashboard
                   </Link>
@@ -241,7 +354,7 @@ export function Header({ overlay = false }: { overlay?: boolean } = {}) {
                     onClick={signOut}
                     className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-3 min-h-[52px] text-sm font-semibold text-white hover:bg-red-500/20 transition"
                   >
-                    <LogOut className="h-4 w-4 text-primary" /> Sign out ({adminUser})
+                    <LogOut className="h-4 w-4 text-primary" /> Sign out Admin ({adminUser})
                   </button>
                 </>
               ) : (

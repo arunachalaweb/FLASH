@@ -12,15 +12,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExpertiseRouteImport } from './routes/expertise'
 import { Route as InvestorsPartnersRouteImport } from './routes/investors-partners'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as QuoteRouteImport } from './routes/quote'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WhyUsRouteImport } from './routes/why-us'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as CustomerDashboardRouteImport } from './routes/customer.dashboard'
+import { Route as CustomerLoginRouteImport } from './routes/customer.login'
+import { Route as CustomerSignupRouteImport } from './routes/customer.signup'
+import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -34,6 +41,11 @@ import { Route as AuthenticatedAdminCmsProjectsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCmsServicesRouteImport } from './routes/_authenticated/admin/cms.services'
 import { Route as AuthenticatedAdminCmsSlidesRouteImport } from './routes/_authenticated/admin/cms.slides'
 import { Route as AuthenticatedAdminCmsTestimonialsRouteImport } from './routes/_authenticated/admin/cms.testimonials'
+import { Route as AuthenticatedAdminEcommerceCreditNotesRouteImport } from './routes/_authenticated/admin/ecommerce.credit-notes'
+import { Route as AuthenticatedAdminEcommerceCustomersRouteImport } from './routes/_authenticated/admin/ecommerce.customers'
+import { Route as AuthenticatedAdminEcommerceInventoryRouteImport } from './routes/_authenticated/admin/ecommerce.inventory'
+import { Route as AuthenticatedAdminEcommerceOrdersRouteImport } from './routes/_authenticated/admin/ecommerce.orders'
+import { Route as AuthenticatedAdminEcommerceProductsRouteImport } from './routes/_authenticated/admin/ecommerce.products'
 import { Route as AuthenticatedAdminEnquiriesContactRouteImport } from './routes/_authenticated/admin/enquiries.contact'
 import { Route as AuthenticatedAdminEnquiriesInvestorsRouteImport } from './routes/_authenticated/admin/enquiries.investors'
 import { Route as AuthenticatedAdminEnquiriesPartnersRouteImport } from './routes/_authenticated/admin/enquiries.partners'
@@ -54,6 +66,16 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -72,6 +94,11 @@ const InvestorsPartnersRoute = InvestorsPartnersRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -98,6 +125,26 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CustomerDashboardRoute = CustomerDashboardRouteImport.update({
+  id: '/customer/dashboard',
+  path: '/customer/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerLoginRoute = CustomerLoginRouteImport.update({
+  id: '/customer/login',
+  path: '/customer/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomerSignupRoute = CustomerSignupRouteImport.update({
+  id: '/customer/signup',
+  path: '/customer/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsSlugRoute = ProductsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ProductsRoute,
 } as any)
 const ServicesIndexRoute = ServicesIndexRouteImport.update({
   id: '/services/',
@@ -172,6 +219,36 @@ const AuthenticatedAdminCmsTestimonialsRoute =
     path: '/cms/testimonials',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminEcommerceCreditNotesRoute =
+  AuthenticatedAdminEcommerceCreditNotesRouteImport.update({
+    id: '/ecommerce/credit-notes',
+    path: '/ecommerce/credit-notes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceCustomersRoute =
+  AuthenticatedAdminEcommerceCustomersRouteImport.update({
+    id: '/ecommerce/customers',
+    path: '/ecommerce/customers',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceInventoryRoute =
+  AuthenticatedAdminEcommerceInventoryRouteImport.update({
+    id: '/ecommerce/inventory',
+    path: '/ecommerce/inventory',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceOrdersRoute =
+  AuthenticatedAdminEcommerceOrdersRouteImport.update({
+    id: '/ecommerce/orders',
+    path: '/ecommerce/orders',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEcommerceProductsRoute =
+  AuthenticatedAdminEcommerceProductsRouteImport.update({
+    id: '/ecommerce/products',
+    path: '/ecommerce/products',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminEnquiriesContactRoute =
   AuthenticatedAdminEnquiriesContactRouteImport.update({
     id: '/enquiries/contact',
@@ -206,15 +283,22 @@ const AuthenticatedAdminEnquiriesSubscribersRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/why-us': typeof WhyUsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/signup': typeof CustomerSignupRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services/': typeof ServicesIndexRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -228,6 +312,11 @@ export interface FileRoutesByFullPath {
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
+  '/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
+  '/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -237,14 +326,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/why-us': typeof WhyUsRoute
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/signup': typeof CustomerSignupRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services': typeof ServicesIndexRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -258,6 +354,11 @@ export interface FileRoutesByTo {
   '/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
+  '/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
+  '/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -269,15 +370,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/cart': typeof CartRoute
+  '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
+  '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/why-us': typeof WhyUsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/customer/dashboard': typeof CustomerDashboardRoute
+  '/customer/login': typeof CustomerLoginRoute
+  '/customer/signup': typeof CustomerSignupRoute
+  '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
   '/services/': typeof ServicesIndexRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -291,6 +399,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms/services': typeof AuthenticatedAdminCmsServicesRoute
   '/_authenticated/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/_authenticated/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
+  '/_authenticated/admin/ecommerce/credit-notes': typeof AuthenticatedAdminEcommerceCreditNotesRoute
+  '/_authenticated/admin/ecommerce/customers': typeof AuthenticatedAdminEcommerceCustomersRoute
+  '/_authenticated/admin/ecommerce/inventory': typeof AuthenticatedAdminEcommerceInventoryRoute
+  '/_authenticated/admin/ecommerce/orders': typeof AuthenticatedAdminEcommerceOrdersRoute
+  '/_authenticated/admin/ecommerce/products': typeof AuthenticatedAdminEcommerceProductsRoute
   '/_authenticated/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
   '/_authenticated/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
   '/_authenticated/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -302,15 +415,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/cart'
+    | '/checkout'
     | '/contact'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/products'
     | '/projects'
     | '/quote'
     | '/sitemap.xml'
     | '/why-us'
     | '/admin'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/signup'
+    | '/products/$slug'
     | '/services/$slug'
     | '/services/'
     | '/admin/messages'
@@ -324,6 +444,11 @@ export interface FileRouteTypes {
     | '/admin/cms/services'
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
+    | '/admin/ecommerce/credit-notes'
+    | '/admin/ecommerce/customers'
+    | '/admin/ecommerce/inventory'
+    | '/admin/ecommerce/orders'
+    | '/admin/ecommerce/products'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/investors'
     | '/admin/enquiries/partners'
@@ -333,14 +458,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/cart'
+    | '/checkout'
     | '/contact'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/products'
     | '/projects'
     | '/quote'
     | '/sitemap.xml'
     | '/why-us'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/signup'
+    | '/products/$slug'
     | '/services/$slug'
     | '/services'
     | '/admin/messages'
@@ -354,6 +486,11 @@ export interface FileRouteTypes {
     | '/admin/cms/services'
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
+    | '/admin/ecommerce/credit-notes'
+    | '/admin/ecommerce/customers'
+    | '/admin/ecommerce/inventory'
+    | '/admin/ecommerce/orders'
+    | '/admin/ecommerce/products'
     | '/admin/enquiries/contact'
     | '/admin/enquiries/investors'
     | '/admin/enquiries/partners'
@@ -364,15 +501,22 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/cart'
+    | '/checkout'
     | '/contact'
     | '/expertise'
     | '/investors-partners'
     | '/login'
+    | '/products'
     | '/projects'
     | '/quote'
     | '/sitemap.xml'
     | '/why-us'
     | '/_authenticated/admin'
+    | '/customer/dashboard'
+    | '/customer/login'
+    | '/customer/signup'
+    | '/products/$slug'
     | '/services/$slug'
     | '/services/'
     | '/_authenticated/admin/messages'
@@ -386,6 +530,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cms/services'
     | '/_authenticated/admin/cms/slides'
     | '/_authenticated/admin/cms/testimonials'
+    | '/_authenticated/admin/ecommerce/credit-notes'
+    | '/_authenticated/admin/ecommerce/customers'
+    | '/_authenticated/admin/ecommerce/inventory'
+    | '/_authenticated/admin/ecommerce/orders'
+    | '/_authenticated/admin/ecommerce/products'
     | '/_authenticated/admin/enquiries/contact'
     | '/_authenticated/admin/enquiries/investors'
     | '/_authenticated/admin/enquiries/partners'
@@ -397,14 +546,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  CartRoute: typeof CartRoute
+  CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   ExpertiseRoute: typeof ExpertiseRoute
   InvestorsPartnersRoute: typeof InvestorsPartnersRoute
   LoginRoute: typeof LoginRoute
+  ProductsRoute: typeof ProductsRouteWithChildren
   ProjectsRoute: typeof ProjectsRoute
   QuoteRoute: typeof QuoteRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WhyUsRoute: typeof WhyUsRoute
+  CustomerDashboardRoute: typeof CustomerDashboardRoute
+  CustomerLoginRoute: typeof CustomerLoginRoute
+  CustomerSignupRoute: typeof CustomerSignupRoute
   ServicesSlugRoute: typeof ServicesSlugRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
 }
@@ -430,6 +585,20 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -458,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -494,6 +670,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/customer/dashboard': {
+      id: '/customer/dashboard'
+      path: '/customer/dashboard'
+      fullPath: '/customer/dashboard'
+      preLoaderRoute: typeof CustomerDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/login': {
+      id: '/customer/login'
+      path: '/customer/login'
+      fullPath: '/customer/login'
+      preLoaderRoute: typeof CustomerLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/signup': {
+      id: '/customer/signup'
+      path: '/customer/signup'
+      fullPath: '/customer/signup'
+      preLoaderRoute: typeof CustomerSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$slug': {
+      id: '/products/$slug'
+      path: '/$slug'
+      fullPath: '/products/$slug'
+      preLoaderRoute: typeof ProductsSlugRouteImport
+      parentRoute: typeof ProductsRoute
     }
     '/services/': {
       id: '/services/'
@@ -586,6 +790,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCmsTestimonialsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/ecommerce/credit-notes': {
+      id: '/_authenticated/admin/ecommerce/credit-notes'
+      path: '/ecommerce/credit-notes'
+      fullPath: '/admin/ecommerce/credit-notes'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceCreditNotesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/customers': {
+      id: '/_authenticated/admin/ecommerce/customers'
+      path: '/ecommerce/customers'
+      fullPath: '/admin/ecommerce/customers'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceCustomersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/inventory': {
+      id: '/_authenticated/admin/ecommerce/inventory'
+      path: '/ecommerce/inventory'
+      fullPath: '/admin/ecommerce/inventory'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceInventoryRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/orders': {
+      id: '/_authenticated/admin/ecommerce/orders'
+      path: '/ecommerce/orders'
+      fullPath: '/admin/ecommerce/orders'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ecommerce/products': {
+      id: '/_authenticated/admin/ecommerce/products'
+      path: '/ecommerce/products'
+      fullPath: '/admin/ecommerce/products'
+      preLoaderRoute: typeof AuthenticatedAdminEcommerceProductsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/enquiries/contact': {
       id: '/_authenticated/admin/enquiries/contact'
       path: '/enquiries/contact'
@@ -636,6 +875,11 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCmsServicesRoute: typeof AuthenticatedAdminCmsServicesRoute
   AuthenticatedAdminCmsSlidesRoute: typeof AuthenticatedAdminCmsSlidesRoute
   AuthenticatedAdminCmsTestimonialsRoute: typeof AuthenticatedAdminCmsTestimonialsRoute
+  AuthenticatedAdminEcommerceCreditNotesRoute: typeof AuthenticatedAdminEcommerceCreditNotesRoute
+  AuthenticatedAdminEcommerceCustomersRoute: typeof AuthenticatedAdminEcommerceCustomersRoute
+  AuthenticatedAdminEcommerceInventoryRoute: typeof AuthenticatedAdminEcommerceInventoryRoute
+  AuthenticatedAdminEcommerceOrdersRoute: typeof AuthenticatedAdminEcommerceOrdersRoute
+  AuthenticatedAdminEcommerceProductsRoute: typeof AuthenticatedAdminEcommerceProductsRoute
   AuthenticatedAdminEnquiriesContactRoute: typeof AuthenticatedAdminEnquiriesContactRoute
   AuthenticatedAdminEnquiriesInvestorsRoute: typeof AuthenticatedAdminEnquiriesInvestorsRoute
   AuthenticatedAdminEnquiriesPartnersRoute: typeof AuthenticatedAdminEnquiriesPartnersRoute
@@ -657,6 +901,16 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminCmsSlidesRoute: AuthenticatedAdminCmsSlidesRoute,
     AuthenticatedAdminCmsTestimonialsRoute:
       AuthenticatedAdminCmsTestimonialsRoute,
+    AuthenticatedAdminEcommerceCreditNotesRoute:
+      AuthenticatedAdminEcommerceCreditNotesRoute,
+    AuthenticatedAdminEcommerceCustomersRoute:
+      AuthenticatedAdminEcommerceCustomersRoute,
+    AuthenticatedAdminEcommerceInventoryRoute:
+      AuthenticatedAdminEcommerceInventoryRoute,
+    AuthenticatedAdminEcommerceOrdersRoute:
+      AuthenticatedAdminEcommerceOrdersRoute,
+    AuthenticatedAdminEcommerceProductsRoute:
+      AuthenticatedAdminEcommerceProductsRoute,
     AuthenticatedAdminEnquiriesContactRoute:
       AuthenticatedAdminEnquiriesContactRoute,
     AuthenticatedAdminEnquiriesInvestorsRoute:
@@ -685,18 +939,36 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ProductsRouteChildren {
+  ProductsSlugRoute: typeof ProductsSlugRoute
+}
+
+const ProductsRouteChildren: ProductsRouteChildren = {
+  ProductsSlugRoute: ProductsSlugRoute,
+}
+
+const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
+  ProductsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  CartRoute: CartRoute,
+  CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   ExpertiseRoute: ExpertiseRoute,
   InvestorsPartnersRoute: InvestorsPartnersRoute,
   LoginRoute: LoginRoute,
+  ProductsRoute: ProductsRouteWithChildren,
   ProjectsRoute: ProjectsRoute,
   QuoteRoute: QuoteRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WhyUsRoute: WhyUsRoute,
+  CustomerDashboardRoute: CustomerDashboardRoute,
+  CustomerLoginRoute: CustomerLoginRoute,
+  CustomerSignupRoute: CustomerSignupRoute,
   ServicesSlugRoute: ServicesSlugRoute,
   ServicesIndexRoute: ServicesIndexRoute,
 }
