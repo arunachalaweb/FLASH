@@ -218,7 +218,7 @@ function CustomerDashboardPage() {
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
       <div>
-        <Header overlay />
+        <Header />
         <PageHero
           title="Customer Dashboard"
           crumb="Account Dashboard"

@@ -248,7 +248,7 @@ function ProductDetailPage() {
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-between">
       <div>
-        <Header overlay />
+        <Header />
         
         {/* Breadcrumb strip matching premium layout */}
         <div className="bg-slate-50 border-b border-border py-4">
