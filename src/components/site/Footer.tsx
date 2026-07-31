@@ -75,6 +75,7 @@ export function Footer() {
             { label: "Why Us", href: "/why-us" },
             { label: "Contact Us", href: "/contact" },
             { label: "Free Quote", href: "/quote" },
+            { label: "Investors / Partners", href: "/investors-partners" },
           ]}
         />
         <FooterCol

@@ -292,6 +292,10 @@ function modelFor(table) {
       return prisma.staffMessage;
     case "hero_slides":
       return prisma.heroSlide;
+    case "investor_enquiries":
+      return prisma.investorEnquiry;
+    case "partner_applications":
+      return prisma.channelPartnerApplication;
     default:
       return null;
   }
@@ -391,7 +395,9 @@ app.use("/api", (req, res, next) => {
   if (req.method === "POST" && (
     req.path === "/contact_enquiries" ||
     req.path === "/quote_requests" ||
-    req.path === "/newsletter_subscribers"
+    req.path === "/newsletter_subscribers" ||
+    req.path === "/investor_enquiries" ||
+    req.path === "/partner_applications"
   )) {
     return next();
   }
@@ -628,6 +634,48 @@ app.post("/api/:table", async (req, res) => {
               ${created.email}
             </div>
             <p style="margin-top: 25px; font-size: 11px; color: #667085;">Registered at: ${new Date(created.created_at).toLocaleString()}</p>
+          </div>
+        `
+      ).catch(console.error);
+    } else if (table === "investor_enquiries") {
+      sendNotificationEmail(
+        `New Investor Enquiry - ${created.name}`,
+        `
+          <div style="font-family: sans-serif; max-width: 600px; color: #1b2430; border: 1px solid #e7edf5; padding: 25px; border-radius: 12px;">
+            <h2 style="color: #0b2340; margin-top: 0;">🏦 New Investor Enquiry Received</h2>
+            <p>A prospective investor has submitted an enquiry via the website:</p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;width:160px;">Name:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.name}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Email:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;"><a href="mailto:${created.email}">${created.email}</a></td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Phone:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.phone}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Organisation:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.organisation || 'N/A'}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Investment Range:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.investment_range}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Investment Type:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.investment_type}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Timeline:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.timeline || 'Not specified'}</td></tr>
+            </table>
+            <div style="margin-top:20px;background-color:#f6f8fb;padding:15px;border-radius:8px;font-style:italic;">${created.message || 'No additional notes.'}</div>
+            <p style="margin-top:25px;font-size:11px;color:#667085;">Received at: ${new Date(created.created_at).toLocaleString()}</p>
+          </div>
+        `
+      ).catch(console.error);
+    } else if (table === "partner_applications") {
+      sendNotificationEmail(
+        `New Channel Partner Application - ${created.name}`,
+        `
+          <div style="font-family: sans-serif; max-width: 600px; color: #1b2430; border: 1px solid #e7edf5; padding: 25px; border-radius: 12px;">
+            <h2 style="color: #0b2340; margin-top: 0;">🤝 New Channel Partner Application</h2>
+            <p>A new channel partner has applied via the website:</p>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;width:160px;">Name:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.name}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Email:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;"><a href="mailto:${created.email}">${created.email}</a></td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Phone:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.phone}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Business:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.business_name} (${created.business_type})</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Partner Type:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.partner_type}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Location:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.district}, ${created.state}</td></tr>
+              <tr><td style="font-weight:bold;padding:8px 0;border-bottom:1px solid #f6f8fb;">Experience:</td><td style="padding:8px 0;border-bottom:1px solid #f6f8fb;">${created.experience || 'Not specified'}</td></tr>
+            </table>
+            <div style="margin-top:20px;background-color:#f6f8fb;padding:15px;border-radius:8px;font-style:italic;">${created.message || 'No additional notes.'}</div>
+            <p style="margin-top:25px;font-size:11px;color:#667085;">Received at: ${new Date(created.created_at).toLocaleString()}</p>
           </div>
         `
       ).catch(console.error);

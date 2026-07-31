@@ -205,3 +205,38 @@ model HeroSlide {
   updated_at  DateTime? @updatedAt
 }
 
+model InvestorEnquiry {
+  id                String    @id @default(uuid())
+  name              String
+  email             String
+  phone             String
+  organisation      String?
+  investment_range  String
+  investment_type   String
+  timeline          String?
+  message           String?
+  status            String    @default("new")
+  admin_notes       String?
+  assigned_staff_id String?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime? @updatedAt
+}
+
+model ChannelPartnerApplication {
+  id            String    @id @default(uuid())
+  name          String
+  email         String
+  phone         String
+  business_name String
+  business_type String
+  partner_type  String
+  state         String
+  district      String
+  experience    String?
+  message       String?
+  status        String    @default("new")
+  admin_notes   String?
+  assigned_staff_id String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt
+}

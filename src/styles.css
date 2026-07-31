@@ -243,3 +243,42 @@ a[href*="lovable.dev"][target="_blank"] {
   background-clip: text;
   color: transparent;
 }
+
+/* ─── Admin panel: thin scrollbars ───────────────────────────────────────── */
+/* Vertical sidebar nav */
+.admin-nav-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255 255 255 / 0.2) transparent;
+}
+.admin-nav-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+.admin-nav-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-nav-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(255 255 255 / 0.2);
+  border-radius: 99px;
+}
+.admin-nav-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255 255 255 / 0.35);
+}
+
+/* Horizontal table scroll */
+.admin-table-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100 116 139 / 0.25) transparent;
+}
+.admin-table-scroll::-webkit-scrollbar {
+  height: 3px;
+}
+.admin-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-table-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(100 116 139 / 0.3);
+  border-radius: 99px;
+}
+.admin-table-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100 116 139 / 0.5);
+}

@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExpertiseRouteImport } from './routes/expertise'
+import { Route as InvestorsPartnersRouteImport } from './routes/investors-partners'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as QuoteRouteImport } from './routes/quote'
@@ -34,6 +35,8 @@ import { Route as AuthenticatedAdminCmsServicesRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCmsSlidesRouteImport } from './routes/_authenticated/admin/cms.slides'
 import { Route as AuthenticatedAdminCmsTestimonialsRouteImport } from './routes/_authenticated/admin/cms.testimonials'
 import { Route as AuthenticatedAdminEnquiriesContactRouteImport } from './routes/_authenticated/admin/enquiries.contact'
+import { Route as AuthenticatedAdminEnquiriesInvestorsRouteImport } from './routes/_authenticated/admin/enquiries.investors'
+import { Route as AuthenticatedAdminEnquiriesPartnersRouteImport } from './routes/_authenticated/admin/enquiries.partners'
 import { Route as AuthenticatedAdminEnquiriesQuotesRouteImport } from './routes/_authenticated/admin/enquiries.quotes'
 import { Route as AuthenticatedAdminEnquiriesSubscribersRouteImport } from './routes/_authenticated/admin/enquiries.subscribers'
 
@@ -59,6 +62,11 @@ const ContactRoute = ContactRouteImport.update({
 const ExpertiseRoute = ExpertiseRouteImport.update({
   id: '/expertise',
   path: '/expertise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorsPartnersRoute = InvestorsPartnersRouteImport.update({
+  id: '/investors-partners',
+  path: '/investors-partners',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -170,6 +178,18 @@ const AuthenticatedAdminEnquiriesContactRoute =
     path: '/enquiries/contact',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminEnquiriesInvestorsRoute =
+  AuthenticatedAdminEnquiriesInvestorsRouteImport.update({
+    id: '/enquiries/investors',
+    path: '/enquiries/investors',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminEnquiriesPartnersRoute =
+  AuthenticatedAdminEnquiriesPartnersRouteImport.update({
+    id: '/enquiries/partners',
+    path: '/enquiries/partners',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminEnquiriesQuotesRoute =
   AuthenticatedAdminEnquiriesQuotesRouteImport.update({
     id: '/enquiries/quotes',
@@ -188,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
+  '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -208,6 +229,8 @@ export interface FileRoutesByFullPath {
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
+  '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
+  '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
   '/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
   '/admin/enquiries/subscribers': typeof AuthenticatedAdminEnquiriesSubscribersRoute
 }
@@ -216,6 +239,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
+  '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -235,6 +259,8 @@ export interface FileRoutesByTo {
   '/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
+  '/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
+  '/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
   '/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
   '/admin/enquiries/subscribers': typeof AuthenticatedAdminEnquiriesSubscribersRoute
 }
@@ -245,6 +271,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/expertise': typeof ExpertiseRoute
+  '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
@@ -265,6 +292,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/cms/slides': typeof AuthenticatedAdminCmsSlidesRoute
   '/_authenticated/admin/cms/testimonials': typeof AuthenticatedAdminCmsTestimonialsRoute
   '/_authenticated/admin/enquiries/contact': typeof AuthenticatedAdminEnquiriesContactRoute
+  '/_authenticated/admin/enquiries/investors': typeof AuthenticatedAdminEnquiriesInvestorsRoute
+  '/_authenticated/admin/enquiries/partners': typeof AuthenticatedAdminEnquiriesPartnersRoute
   '/_authenticated/admin/enquiries/quotes': typeof AuthenticatedAdminEnquiriesQuotesRoute
   '/_authenticated/admin/enquiries/subscribers': typeof AuthenticatedAdminEnquiriesSubscribersRoute
 }
@@ -275,6 +304,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/expertise'
+    | '/investors-partners'
     | '/login'
     | '/projects'
     | '/quote'
@@ -295,6 +325,8 @@ export interface FileRouteTypes {
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
     | '/admin/enquiries/contact'
+    | '/admin/enquiries/investors'
+    | '/admin/enquiries/partners'
     | '/admin/enquiries/quotes'
     | '/admin/enquiries/subscribers'
   fileRoutesByTo: FileRoutesByTo
@@ -303,6 +335,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/expertise'
+    | '/investors-partners'
     | '/login'
     | '/projects'
     | '/quote'
@@ -322,6 +355,8 @@ export interface FileRouteTypes {
     | '/admin/cms/slides'
     | '/admin/cms/testimonials'
     | '/admin/enquiries/contact'
+    | '/admin/enquiries/investors'
+    | '/admin/enquiries/partners'
     | '/admin/enquiries/quotes'
     | '/admin/enquiries/subscribers'
   id:
@@ -331,6 +366,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/expertise'
+    | '/investors-partners'
     | '/login'
     | '/projects'
     | '/quote'
@@ -351,6 +387,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/cms/slides'
     | '/_authenticated/admin/cms/testimonials'
     | '/_authenticated/admin/enquiries/contact'
+    | '/_authenticated/admin/enquiries/investors'
+    | '/_authenticated/admin/enquiries/partners'
     | '/_authenticated/admin/enquiries/quotes'
     | '/_authenticated/admin/enquiries/subscribers'
   fileRoutesById: FileRoutesById
@@ -361,6 +399,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ExpertiseRoute: typeof ExpertiseRoute
+  InvestorsPartnersRoute: typeof InvestorsPartnersRoute
   LoginRoute: typeof LoginRoute
   ProjectsRoute: typeof ProjectsRoute
   QuoteRoute: typeof QuoteRoute
@@ -405,6 +444,13 @@ declare module '@tanstack/react-router' {
       path: '/expertise'
       fullPath: '/expertise'
       preLoaderRoute: typeof ExpertiseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investors-partners': {
+      id: '/investors-partners'
+      path: '/investors-partners'
+      fullPath: '/investors-partners'
+      preLoaderRoute: typeof InvestorsPartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -547,6 +593,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnquiriesContactRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/enquiries/investors': {
+      id: '/_authenticated/admin/enquiries/investors'
+      path: '/enquiries/investors'
+      fullPath: '/admin/enquiries/investors'
+      preLoaderRoute: typeof AuthenticatedAdminEnquiriesInvestorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/enquiries/partners': {
+      id: '/_authenticated/admin/enquiries/partners'
+      path: '/enquiries/partners'
+      fullPath: '/admin/enquiries/partners'
+      preLoaderRoute: typeof AuthenticatedAdminEnquiriesPartnersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/enquiries/quotes': {
       id: '/_authenticated/admin/enquiries/quotes'
       path: '/enquiries/quotes'
@@ -577,6 +637,8 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminCmsSlidesRoute: typeof AuthenticatedAdminCmsSlidesRoute
   AuthenticatedAdminCmsTestimonialsRoute: typeof AuthenticatedAdminCmsTestimonialsRoute
   AuthenticatedAdminEnquiriesContactRoute: typeof AuthenticatedAdminEnquiriesContactRoute
+  AuthenticatedAdminEnquiriesInvestorsRoute: typeof AuthenticatedAdminEnquiriesInvestorsRoute
+  AuthenticatedAdminEnquiriesPartnersRoute: typeof AuthenticatedAdminEnquiriesPartnersRoute
   AuthenticatedAdminEnquiriesQuotesRoute: typeof AuthenticatedAdminEnquiriesQuotesRoute
   AuthenticatedAdminEnquiriesSubscribersRoute: typeof AuthenticatedAdminEnquiriesSubscribersRoute
 }
@@ -597,6 +659,10 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminCmsTestimonialsRoute,
     AuthenticatedAdminEnquiriesContactRoute:
       AuthenticatedAdminEnquiriesContactRoute,
+    AuthenticatedAdminEnquiriesInvestorsRoute:
+      AuthenticatedAdminEnquiriesInvestorsRoute,
+    AuthenticatedAdminEnquiriesPartnersRoute:
+      AuthenticatedAdminEnquiriesPartnersRoute,
     AuthenticatedAdminEnquiriesQuotesRoute:
       AuthenticatedAdminEnquiriesQuotesRoute,
     AuthenticatedAdminEnquiriesSubscribersRoute:
@@ -625,6 +691,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ExpertiseRoute: ExpertiseRoute,
+  InvestorsPartnersRoute: InvestorsPartnersRoute,
   LoginRoute: LoginRoute,
   ProjectsRoute: ProjectsRoute,
   QuoteRoute: QuoteRoute,

@@ -230,7 +230,7 @@ export function AdminCrud({
             No records yet. Click "Add new" to create one.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto admin-table-scroll">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>

@@ -15,10 +15,11 @@ import {
   X,
   Layers,
   FileEdit,
-  Sun,
   ChevronRight,
   Bell,
   Newspaper,
+  TrendingUp,
+  Handshake,
 } from "lucide-react";
 import logo from "@/assets/flash-logo-updated.png";
 
@@ -36,6 +37,8 @@ const adminSections: Section[] = [
       { to: "/admin/enquiries/contact", label: "Contact Messages", icon: Mail },
       { to: "/admin/enquiries/quotes", label: "Quote Requests", icon: FileText },
       { to: "/admin/enquiries/subscribers", label: "Newsletter", icon: Newspaper },
+      { to: "/admin/enquiries/investors", label: "Investor Enquiries", icon: TrendingUp },
+      { to: "/admin/enquiries/partners", label: "Partner Applications", icon: Handshake },
     ],
   },
   {
@@ -106,13 +109,23 @@ export function AdminShell({ email, children }: { email: string; children: React
         <Link to="/admin" className="flex items-center">
           <img src={logo} alt="Flash" className="h-[46px] w-auto object-contain" />
         </Link>
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 rounded-md hover:bg-slate-100"
-          aria-label="Open menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onSignOut}
+            className="p-2 rounded-md hover:bg-slate-100 text-slate-500"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setOpen(true)}
+            className="p-2 rounded-md hover:bg-slate-100"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       <div className="flex">
@@ -135,7 +148,8 @@ export function AdminShell({ email, children }: { email: string; children: React
             </button>
           </div>
 
-          <nav className="p-3 space-y-6 overflow-y-auto h-[calc(100vh-4rem-4.5rem)]">
+          {/* Nav — scrolls freely, no bottom clip */}
+          <nav className="admin-nav-scroll p-3 space-y-6 overflow-y-auto h-[calc(100vh-8rem-4.5rem)] pb-6">
             {sections.map((section) => (
               <div key={section.title}>
                 <div className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/40">
@@ -167,9 +181,10 @@ export function AdminShell({ email, children }: { email: string; children: React
             ))}
           </nav>
 
+          {/* Bottom bar — user info only, no logout (logout is in top header) */}
           <div className="absolute bottom-0 inset-x-0 p-3 border-t border-white/10 bg-black/20">
             <div className="flex items-center gap-3 px-2 py-2">
-              <div className="grid place-items-center h-9 w-9 rounded-full bg-gradient-to-br from-primary to-brand-gold text-brand-navy-deep font-bold text-sm">
+              <div className="grid place-items-center h-9 w-9 rounded-full bg-gradient-to-br from-primary to-brand-gold text-brand-navy-deep font-bold text-sm flex-shrink-0">
                 {email.slice(0, 1).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
@@ -178,14 +193,6 @@ export function AdminShell({ email, children }: { email: string; children: React
                   {role === "staff" ? "Staff Installer" : "Administrator"}
                 </div>
               </div>
-              <button
-                onClick={onSignOut}
-                className="p-2 rounded-md hover:bg-white/10 text-white/70 hover:text-white"
-                aria-label="Sign out"
-                title="Sign out"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
             </div>
           </div>
         </aside>
@@ -211,6 +218,16 @@ export function AdminShell({ email, children }: { email: string; children: React
               </Link>
               <button className="p-2 rounded-full hover:bg-slate-100">
                 <Bell className="h-4 w-4 text-slate-600" />
+              </button>
+              {/* Logout button — top bar, always visible */}
+              <button
+                onClick={onSignOut}
+                title="Sign out"
+                aria-label="Sign out"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
               </button>
             </div>
           </div>
