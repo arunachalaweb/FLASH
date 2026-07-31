@@ -106,16 +106,19 @@ function CheckoutPage() {
       const BACKEND_URL = isDev ? "http://localhost:4000" : "";
       
       const payload = {
-        ...formData,
-        items: cart.map((i) => ({
-          productId: i.id,
-          quantity: i.quantity,
-          price: i.sale_price ?? i.price
+        cart: cart.map((i) => ({
+          id: i.id,
+          quantity: i.quantity
         })),
-        shippingFee,
-        couponCode,
-        discountAmount: couponDiscount,
-        totalAmount: grandTotal
+        shipping_name: formData.name,
+        shipping_phone: formData.phone,
+        shipping_email: formData.email,
+        shipping_address: formData.address,
+        shipping_city: formData.city,
+        shipping_state: formData.state,
+        shipping_postal_code: formData.postalCode,
+        payment_method: formData.paymentMethod,
+        coupon_code: couponCode
       };
 
       const token = localStorage.getItem("customer_token");
@@ -124,7 +127,7 @@ function CheckoutPage() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`${BACKEND_URL}/api/orders`, {
+      const res = await fetch(`${BACKEND_URL}/api/orders/create`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload)

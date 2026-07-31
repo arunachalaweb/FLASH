@@ -813,6 +813,87 @@ app.get("/api/customer/orders", requireAuth, async (req, res) => {
   }
 });
 
+// Helper: Send Welcome and Order Notification Emails (Non-blocking)
+async function sendWelcomeAndOrderEmails(customer, order, autoPassword) {
+  try {
+    const rows = await prisma.systemSetting.findMany();
+    const settings = {};
+    rows.forEach((r) => {
+      settings[r.key] = r.value;
+    });
+
+    const nodemailer = require("nodemailer");
+    const transporter = nodemailer.createTransport({
+      host: settings.smtp_host || "smtp.gmail.com",
+      port: parseInt(settings.smtp_port || "587", 10),
+      secure: settings.smtp_secure === "true" || settings.smtp_secure === true,
+      auth: {
+        user: settings.smtp_user || "info@flashrenewable.com",
+        pass: settings.smtp_pass || "mock-pass"
+      }
+    });
+
+    const fromEmail = settings.smtp_from_email || settings.smtp_user || "info@flashrenewable.com";
+    const adminNotificationEmail = settings.smtp_to_email || "info@flashrenewable.com";
+
+    // 1. Email to Customer (Welcome + Order Confirmation)
+    let customerHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; color: #1b2430; border: 1px solid #e7edf5; padding: 25px; border-radius: 12px;">
+        <h2 style="color: #0b2340; margin-top: 0;">Welcome to FLASH Solar!</h2>
+        <p>Dear ${customer.name},</p>
+        <p>Thank you for choosing FLASH Renewable Energy Solutions. Your customer account has been automatically created so you can track your orders and download tax invoices.</p>
+        
+        <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+          <h4 style="margin-top: 0; color: #0b2340;">Your Account Access Details:</h4>
+          <p style="margin: 5px 0;"><strong>Portal Login URL:</strong> <a href="https://www.flashrenewable.com/customer/login">https://www.flashrenewable.com/customer/login</a></p>
+          <p style="margin: 5px 0;"><strong>Username:</strong> ${customer.email}</p>
+          ${autoPassword ? `<p style="margin: 5px 0;"><strong>Password:</strong> ${autoPassword}</p>` : `<p style="margin: 5px 0;">Use your existing account password to log in.</p>`}
+        </div>
+
+        <h3 style="color: #0b2340;">Order Confirmation: ${order.order_number}</h3>
+        <p>Your order of total <strong>₹${order.total_amount.toLocaleString("en-IN")}</strong> is received and is being processed by our logistics crew.</p>
+        <p>A shipping manager will contact you at <strong>${order.shipping_phone}</strong> to coordinate unloading times.</p>
+        
+        <hr style="border-top: 1px solid #e2e8f0; margin: 25px 0;" />
+        <p style="font-size: 11px; color: #64748b; text-align: center;">This is an automated shipping confirmation. Please do not reply directly to this mail.</p>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `FLASH Solar <${fromEmail}>`,
+      to: customer.email,
+      subject: `Welcome to FLASH & Order Confirmation: ${order.order_number}`,
+      html: customerHtml
+    });
+
+    // 2. Email to Admin
+    let adminHtml = `
+      <div style="font-family: sans-serif; max-width: 600px; color: #1b2430; border: 1px solid #e7edf5; padding: 25px; border-radius: 12px;">
+        <h2 style="color: #0b2340; margin-top: 0;">New Order & Customer Signup Notification</h2>
+        <p><strong>Customer:</strong> ${customer.name} (${customer.email})</p>
+        <p><strong>Phone:</strong> ${customer.phone}</p>
+        <p><strong>Order Reference:</strong> ${order.order_number}</p>
+        <p><strong>Total Amount:</strong> ₹${order.total_amount.toLocaleString("en-IN")}</p>
+        <p><strong>Delivery Address:</strong> ${order.shipping_address}, ${order.shipping_city}, ${order.shipping_state} - ${order.shipping_postal_code}</p>
+        <p><strong>Payment Method:</strong> ${order.payment_method.toUpperCase()}</p>
+        <br />
+        <a href="https://www.flashrenewable.com/login" style="background-color: #0b2340; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 12px;">Manage Order in Dashboard</a>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `FLASH System Notification <${fromEmail}>`,
+      to: adminNotificationEmail,
+      subject: `[ALERT] New Order & Signup: ${order.order_number} by ${customer.name}`,
+      html: adminHtml
+    });
+
+    console.log("Welcome and Order notification emails sent successfully.");
+  } catch (err) {
+    console.error("Nodemailer execution failed, ignoring to prevent order flow blocking:", err.message);
+  }
+}
+
 // Place Order (Public/Guest or Registered Customer Checkout)
 app.post("/api/orders/create", async (req, res) => {
   try {
@@ -825,7 +906,9 @@ app.post("/api/orders/create", async (req, res) => {
       shipping_state,
       shipping_postal_code,
       payment_method,
-      coupon_code
+      coupon_code,
+      shipping_email,
+      email 
     } = req.body;
 
     if (!cart || !Array.isArray(cart) || cart.length === 0) {
@@ -836,14 +919,50 @@ app.post("/api/orders/create", async (req, res) => {
       return res.status(400).json({ error: "Missing required shipping address fields" });
     }
 
-    // Optional: Determine if customer is logged in
+    const emailVal = shipping_email || email;
+    if (!emailVal) {
+      return res.status(400).json({ error: "Email address is required for order signup." });
+    }
+
+    // 1. Determine customerId (logged in, or auto-signup by email)
     let customerId = null;
+    let autoPassword = null;
+    let activeCustomer = null;
+    
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
       if (token.startsWith("customer-token-")) {
-        customerId = token.replace("customer-token-", "");
+        const testId = token.replace("customer-token-", "");
+        activeCustomer = await prisma.customer.findUnique({ where: { id: testId } });
+        if (activeCustomer) {
+          customerId = activeCustomer.id;
+        }
       }
+    }
+
+    if (!activeCustomer) {
+      // Guest checkout: check if customer already exists with this email
+      let customer = await prisma.customer.findUnique({ where: { email: emailVal } });
+      if (!customer) {
+        // Automatically sign up guest customer!
+        autoPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(autoPassword, 10);
+        customer = await prisma.customer.create({
+          data: {
+            email: emailVal,
+            name: shipping_name,
+            password: hashedPassword,
+            phone: shipping_phone || "",
+            address_line1: shipping_address || "",
+            city: shipping_city || "",
+            state: shipping_state || "",
+            postal_code: shipping_postal_code || ""
+          }
+        });
+      }
+      activeCustomer = customer;
+      customerId = customer.id;
     }
 
     // Execute checkout inside a database transaction to verify/decrement stock
@@ -962,6 +1081,9 @@ app.post("/api/orders/create", async (req, res) => {
 
       return order;
     });
+
+    // Trigger emails in background
+    sendWelcomeAndOrderEmails(activeCustomer, result, autoPassword).catch(console.error);
 
     res.json({ success: true, order: result });
   } catch (error) {
