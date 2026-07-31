@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as CustomerDashboardRouteImport } from './routes/customer.dashboard'
 import { Route as CustomerLoginRouteImport } from './routes/customer.login'
 import { Route as CustomerSignupRouteImport } from './routes/customer.signup'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsSlugRouteImport } from './routes/products.$slug'
 import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
@@ -157,6 +158,11 @@ const CustomerSignupRoute = CustomerSignupRouteImport.update({
   id: '/customer/signup',
   path: '/customer/signup',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProductsRoute,
 } as any)
 const ProductsSlugRoute = ProductsSlugRouteImport.update({
   id: '/$slug',
@@ -349,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/customer/signup': typeof CustomerSignupRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/products/': typeof ProductsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -388,7 +395,6 @@ export interface FileRoutesByTo {
   '/investors-partners': typeof InvestorsPartnersRoute
   '/login': typeof LoginRoute
   '/packages': typeof PackagesRoute
-  '/products': typeof ProductsRouteWithChildren
   '/projects': typeof ProjectsRoute
   '/quote': typeof QuoteRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -398,6 +404,7 @@ export interface FileRoutesByTo {
   '/customer/signup': typeof CustomerSignupRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/products': typeof ProductsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -450,6 +457,7 @@ export interface FileRoutesById {
   '/customer/signup': typeof CustomerSignupRoute
   '/products/$slug': typeof ProductsSlugRoute
   '/services/$slug': typeof ServicesSlugRoute
+  '/products/': typeof ProductsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -502,6 +510,7 @@ export interface FileRouteTypes {
     | '/customer/signup'
     | '/products/$slug'
     | '/services/$slug'
+    | '/products/'
     | '/services/'
     | '/admin/messages'
     | '/admin/settings'
@@ -541,7 +550,6 @@ export interface FileRouteTypes {
     | '/investors-partners'
     | '/login'
     | '/packages'
-    | '/products'
     | '/projects'
     | '/quote'
     | '/sitemap.xml'
@@ -551,6 +559,7 @@ export interface FileRouteTypes {
     | '/customer/signup'
     | '/products/$slug'
     | '/services/$slug'
+    | '/products'
     | '/services'
     | '/admin/messages'
     | '/admin/settings'
@@ -602,6 +611,7 @@ export interface FileRouteTypes {
     | '/customer/signup'
     | '/products/$slug'
     | '/services/$slug'
+    | '/products/'
     | '/services/'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/settings'
@@ -796,6 +806,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/customer/signup'
       preLoaderRoute: typeof CustomerSignupRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof ProductsRoute
     }
     '/products/$slug': {
       id: '/products/$slug'
@@ -1096,10 +1113,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface ProductsRouteChildren {
   ProductsSlugRoute: typeof ProductsSlugRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
 }
 
 const ProductsRouteChildren: ProductsRouteChildren = {
   ProductsSlugRoute: ProductsSlugRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
 }
 
 const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
